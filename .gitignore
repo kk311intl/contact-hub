@@ -9,6 +9,7 @@ wrangler.jsonc
 *.dump
 backups/
 private-backups/
+personal/
 .env*
 !.env.example
 .DS_Store

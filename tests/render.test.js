@@ -45,6 +45,16 @@ test("renders the current year, shared profile name, and optional footer link", 
   assert.doesNotMatch(renderHome(config, "en", "https://example.com"), /class="footer-link"/);
 });
 
+test("legacy public presentation keeps the existing language switcher and footer", () => {
+  const config = normalizeConfig(DEFAULT_CONFIG);
+  const html = renderHome(config, "ja", "https://example.com", 123, true);
+  assert.match(html, /class="language-icon"/);
+  assert.match(html, /<option value="en">EN<\/option>/);
+  assert.match(html, /aria-label="外観" data-theme-toggle/);
+  assert.match(html, /<span class="footer-credit">Powered by <strong/);
+  assert.match(html, /123人目の訪問者/);
+});
+
 test("admin and login follow the deployment's fixed language", () => {
   const config = normalizeConfig(DEFAULT_CONFIG);
   config.avatar = "https://example.com/avatar.webp";

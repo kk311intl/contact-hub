@@ -1,7 +1,7 @@
 import { iconSvg } from "../public/icons.js";
 import { uiFor } from "./i18n.js";
 
-export function renderHome(config, lang, origin, visitorCount = null) {
+export function renderHome(config, lang, origin, visitorCount = null, legacyPublicUi = false) {
   const ui = uiFor(lang);
   const links = [...config.links].sort((a, b) => a.order - b.order);
   const websites = links.filter((link) => ["website", "link"].includes(link.type));
@@ -20,7 +20,7 @@ export function renderHome(config, lang, origin, visitorCount = null) {
     bodyClass: "public-page",
     body: `
       <a class="skip-link" href="#main">${ui.skip}</a>
-      <header class="topbar" aria-label="${ui.preferences}">${preferenceControls(lang)}</header>
+      <header class="topbar" aria-label="${legacyPublicUi ? "Site preferences" : ui.preferences}">${preferenceControls(lang, legacyPublicUi)}</header>
       <main id="main" class="contact-shell">
         <section class="identity reveal reveal-1" aria-labelledby="profile-name">
           <button class="avatar-wrap" type="button" aria-label="${escapeAttr(config.name)}" data-admin-entry>${config.avatar ? `<img class="avatar" src="${escapeAttr(config.avatar)}" alt="" width="112" height="112" data-avatar><span class="avatar-fallback" aria-hidden="true">${escapeHtml(initials)}</span>` : `<span class="avatar avatar-fallback" aria-hidden="true">${escapeHtml(initials)}</span>`}</button>
@@ -34,7 +34,7 @@ export function renderHome(config, lang, origin, visitorCount = null) {
           <div class="link-list" data-links>${websites.map((link) => renderSiteLink(link, ui.pending)).join("")}</div>
         </section>
       </main>
-      <footer><div class="footer-meta"><span class="footer-year">© ${currentYear}</span><span class="footer-credit">${ui.credit} <strong data-footer-name>${escapeHtml(config.name)}</strong>${ui.creditEnd ? ` ${ui.creditEnd}` : ""}</span>${footerLinks.map((link) => `<a class="footer-link" href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`).join("")}</div><span class="footer-visitors" data-visitors${Number.isSafeInteger(visitorCount) && visitorCount > 0 ? ` data-count="${visitorCount}"` : ""} aria-live="polite"${visitorCount ? "" : " hidden"}>${visitorCount ? escapeHtml(visitorText(lang, visitorCount)) : ""}</span></footer>
+      <footer><div class="footer-meta"><span class="footer-year">© ${currentYear}</span><span class="footer-credit">${legacyPublicUi ? "Powered by" : ui.credit} <strong data-footer-name>${escapeHtml(config.name)}</strong>${!legacyPublicUi && ui.creditEnd ? ` ${ui.creditEnd}` : ""}</span>${footerLinks.map((link) => `<a class="footer-link" href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`).join("")}</div><span class="footer-visitors" data-visitors${Number.isSafeInteger(visitorCount) && visitorCount > 0 ? ` data-count="${visitorCount}"` : ""} aria-live="polite"${visitorCount ? "" : " hidden"}>${visitorCount ? escapeHtml(visitorText(lang, visitorCount)) : ""}</span></footer>
       ${bootstrap(config, lang)}
       <script type="module" src="/app-v3.js"></script>`
   });
@@ -117,8 +117,9 @@ function documentShell({ lang, title, description, canonical, favicon = "", body
   return `<!doctype html><html lang="${lang === "zh-TW" ? "zh-Hant" : lang}" data-theme="auto"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeAttr(description)}"><meta name="color-scheme" content="light dark"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f7"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#050505">${canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}"><meta property="og:url" content="${escapeAttr(canonical)}">` : ""}<meta property="og:type" content="profile"><meta property="og:title" content="${escapeAttr(title)}"><meta property="og:description" content="${escapeAttr(description)}"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="${escapeAttr(title)}"><meta name="twitter:description" content="${escapeAttr(description)}"><link rel="icon" href="${escapeAttr(favicon || "/favicon.svg")}"><link rel="stylesheet" href="/styles-v6.css"></head><body class="${bodyClass}">${body}</body></html>`;
 }
 
-function preferenceControls(lang) {
+function preferenceControls(lang, legacy = false) {
   const ui = uiFor(lang);
+  if (legacy) return `<div class="preferences"><label><span>${ui.language}</span><svg class="language-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-2.5 2.5-3.8 5.5-3.8 9s1.3 6.5 3.8 9M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9"/></svg><select data-language aria-label="${ui.language}"><option value="zh-TW"${lang === "zh-TW" ? " selected" : ""}>中文</option><option value="en"${lang === "en" ? " selected" : ""}>EN</option><option value="ja"${lang === "ja" ? " selected" : ""}>日本語</option></select></label><button class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="${lang === "ja" ? "外観" : ui.appearance}" data-theme-toggle><span class="sun" aria-hidden="true">☀</span><span class="theme-track" aria-hidden="true"><i></i></span><span class="moon" aria-hidden="true">☾</span></button></div>`;
   return `<div class="preferences"><label class="language-control"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg><span class="sr-only">${ui.language}</span><select aria-label="${ui.language}" data-language><option value="zh-TW"${lang === "zh-TW" ? " selected" : ""}>中文</option><option value="en"${lang === "en" ? " selected" : ""}>English</option><option value="ja"${lang === "ja" ? " selected" : ""}>日本語</option></select></label><button class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="${ui.appearance}" data-theme-toggle><span class="sun" aria-hidden="true">☀</span><span class="theme-track" aria-hidden="true"><i></i></span><span class="moon" aria-hidden="true">☾</span></button></div>`;
 }
 

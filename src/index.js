@@ -47,7 +47,7 @@ export default {
             console.error("Visitor counter failed", error instanceof Error ? error.message : "Unknown error");
           }
         }
-        return html(renderHome(config, publicLang, url.origin, visitorCount), 200, headers);
+        return html(renderHome(config, publicLang, url.origin, visitorCount, env.LEGACY_PUBLIC_UI === "true"), 200, headers);
       }
       const asset = await env.ASSETS.fetch(request);
       if (asset.status !== 404) return withSecurity(asset);
