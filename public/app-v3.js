@@ -1,0 +1,80 @@
+const bootstrap = JSON.parse(document.querySelector("#bootstrap")?.textContent || "{}");
+const config = bootstrap.config;
+const translations = {
+  "zh-TW": { contact: "聯絡方式", websites: "網站", language: "語言", theme: "外觀", pending: "準備中", skip: "跳至主要內容", visitor: (n) => `第 ${n.toLocaleString("zh-TW")} 位來訪者` },
+  en: { contact: "Contact", websites: "Websites", language: "Language", theme: "Appearance", pending: "Coming soon", skip: "Skip to content", visitor: (n) => `Visitor #${n.toLocaleString("en")}` },
+  ja: { contact: "連絡先", websites: "ウェブサイト", language: "言語", theme: "外観", pending: "準備中", skip: "本文へ移動", visitor: (n) => `${n.toLocaleString("ja")}人目の訪問者` }
+};
+const storedLanguage = localStorage.getItem("contact-language");
+const currentLanguage = storedLanguage && translations[storedLanguage] ? storedLanguage : detectBrowserLanguage();
+const colorScheme = matchMedia("(prefers-color-scheme: dark)");
+let currentTheme = ["light", "dark"].includes(localStorage.getItem("contact-theme")) ? localStorage.getItem("contact-theme") : "auto";
+applyTheme(currentTheme);
+
+document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.addEventListener("click", () => {
+  const effective = currentTheme === "auto" ? (colorScheme.matches ? "dark" : "light") : currentTheme;
+  applyTheme(effective === "dark" ? "light" : "dark", true);
+}));
+colorScheme.addEventListener("change", () => { if (currentTheme === "auto") applyTheme("auto"); });
+document.querySelectorAll("[data-language]").forEach((select) => {
+  select.value = currentLanguage;
+  select.addEventListener("change", () => applyLanguage(select.value, true));
+});
+applyLanguage(currentLanguage);
+
+document.querySelector("[data-avatar]")?.addEventListener("error", (event) => {
+  event.currentTarget.hidden = true;
+});
+
+let adminEntryClicks = 0;
+let adminEntryReset;
+document.querySelector("[data-admin-entry]")?.addEventListener("click", () => {
+  clearTimeout(adminEntryReset);
+  adminEntryClicks += 1;
+  if (adminEntryClicks === 5) location.assign("/admin");
+  else adminEntryReset = setTimeout(() => { adminEntryClicks = 0; }, 2000);
+});
+
+function detectBrowserLanguage() {
+  for (const raw of navigator.languages?.length ? navigator.languages : [navigator.language]) {
+    const code = String(raw).toLowerCase();
+    if (["zh-tw", "zh-hk"].includes(code) || code.startsWith("zh-hant")) return "zh-TW";
+    if (code === "ja" || code.startsWith("ja-")) return "ja";
+    if (code === "en" || code.startsWith("en-")) return "en";
+  }
+  return "en";
+}
+
+function applyTheme(theme, persist = false) {
+  const selected = ["auto", "light", "dark"].includes(theme) ? theme : "auto";
+  currentTheme = selected;
+  document.documentElement.dataset.theme = selected;
+  if (persist) localStorage.setItem("contact-theme", selected);
+  const isDark = selected === "dark" || (selected === "auto" && colorScheme.matches);
+  document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.setAttribute("aria-checked", String(isDark)));
+}
+
+function applyLanguage(language, persist = false) {
+  const lang = translations[language] ? language : "en";
+  document.documentElement.lang = lang === "zh-TW" ? "zh-Hant" : lang;
+  if (persist) localStorage.setItem("contact-language", lang);
+  document.querySelectorAll("[data-language]").forEach((select) => { select.value = lang; select.setAttribute("aria-label", translations[lang].language); });
+  if (!config) return;
+  const ui = translations[lang];
+  const visitor = document.querySelector("[data-visitors]");
+  if (visitor?.dataset.count) visitor.textContent = ui.visitor(Number(visitor.dataset.count));
+  document.querySelector("[data-bio]").textContent = config.bio[lang] || config.bio.en;
+  document.querySelector("[data-status]").textContent = config.status[lang] || config.status.en;
+  const contactTitle = document.querySelector("#contact-title");
+  if (contactTitle) contactTitle.textContent = ui.contact;
+  const websitesTitle = document.querySelector("[data-websites-title]");
+  if (websitesTitle) websitesTitle.textContent = ui.websites;
+  document.querySelector("[data-contact-icons]")?.setAttribute("aria-label", ui.contact);
+  document.querySelectorAll(".preferences label:first-child > span").forEach((node) => { node.textContent = ui.language; });
+  document.querySelectorAll("[data-theme-toggle]").forEach((node) => { node.setAttribute("aria-label", ui.theme); });
+  const skip = document.querySelector(".skip-link");
+  if (skip) skip.textContent = ui.skip;
+  document.querySelectorAll("[data-pending]").forEach((node) => { node.textContent = ui.pending; });
+  document.querySelectorAll("[data-pending-tooltip]").forEach((node) => { node.dataset.tooltip = ui.pending; });
+  document.title = config.settings.siteTitle || `${config.name} — ${ui.contact}`;
+}

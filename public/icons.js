@@ -1,0 +1,57 @@
+export const ICON_CHOICES = [
+  ["globe", "網站"], ["link", "連結"], ["home", "首頁"], ["blog", "文章"], ["rss", "RSS"], ["code", "程式碼"], ["book", "書籍"], ["briefcase", "工作"], ["store", "商店"], ["chain", "鏈上"],
+  ["email", "郵件"], ["line", "LINE"], ["phone", "電話"], ["message", "訊息"], ["calendar", "日曆"], ["map", "地圖"], ["camera", "相機"], ["cloud", "雲端"],
+  ["github", "GitHub"], ["youtube", "YouTube"], ["medium", "Medium"], ["discord", "Discord"], ["telegram", "Telegram"], ["signal", "Signal"], ["whatsapp", "WhatsApp"], ["x", "X"], ["bluesky", "Bluesky"], ["mastodon", "Mastodon"], ["threads", "Threads"], ["instagram", "Instagram"], ["linkedin", "LinkedIn"], ["facebook", "Facebook"], ["reddit", "Reddit"], ["tiktok", "TikTok"], ["twitch", "Twitch"], ["spotify", "Spotify"], ["steam", "Steam"], ["patreon", "Patreon"], ["apple", "Apple"], ["google", "Google"], ["notion", "Notion"], ["figma", "Figma"], ["microsoft", "Microsoft"], ["ethereum", "Ethereum"], ["bitcoin", "Bitcoin"]
+];
+
+const PATHS = {
+  email: '<path d="M3 5h18v14H3zM3 7l9 7 9-7"/>',
+  line: '<path d="M20.5 11.3c0-4-4-7.3-8.8-7.3S3 7.3 3 11.3c0 3.6 3.2 6.6 7.5 7.2.3.1.7.2.8.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6s5.8-3.4 7.9-5.9c1.4-1.5.4-4.3.4-4.3z"/>',
+  phone: '<path d="M7 3H4a2 2 0 00-2 2c0 9.4 7.6 17 17 17a2 2 0 002-2v-3l-5-2-2 2a15 15 0 01-7-7l2-2z"/>',
+  message: '<path d="M4 4h16v12H9l-5 4zM7 9h10M7 12h7"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M14 14h2"/>',
+  map: '<path d="M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16"/>',
+  camera: '<path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/>',
+  cloud: '<path d="M6 19a4 4 0 01-1-7.9A7 7 0 0119 12a3.5 3.5 0 01-.5 7z"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21M12 3C9.7 5.5 8.5 8.5 8.5 12S9.7 18.5 12 21"/>',
+  link: '<path d="M10 13a5 5 0 007.5.5l2-2a5 5 0 00-7-7l-1.1 1M14 11a5 5 0 00-7.5-.5l-2 2a5 5 0 007 7l1.1-1"/>',
+  home: '<path d="M3 11l9-8 9 8v9H6v-9M9 20v-6h6v6"/>',
+  blog: '<path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/>',
+  rss: '<path d="M5 18a1 1 0 110 2 1 1 0 010-2M4 11a9 9 0 019 9M4 5a15 15 0 0115 15"/>',
+  code: '<path d="M8 6l-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/>',
+  book: '<path d="M4 4h7a3 3 0 013 3v13a3 3 0 00-3-3H4zM20 4h-3a3 3 0 00-3 3v13a3 3 0 013-3h3z"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M3 12h18M10 12v2h4v-2"/>',
+  store: '<path d="M4 10v10h16V10M3 10l2-6h14l2 6M3 10c1 3 4 3 5 0 1 3 4 3 5 0 1 3 4 3 5 0 1 3 4 3 5 0"/>',
+  chain: '<path d="M12 2l7 4v8l-7 4-7-4V6zM12 2v16M5 6l7 4 7-4M5 14l7-4 7 4"/>',
+  github: '<path d="M12 2a10 10 0 00-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.6-1.1-4.6-4.9 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.4 9.4 0 015 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.8-2.3 4.6-4.6 4.9.4.3.7 1 .7 1.9V21c0 .3.2.6.7.5A10 10 0 0012 2z"/>',
+  youtube: '<rect x="3" y="6" width="18" height="12" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/>',
+  medium: '<circle cx="6" cy="12" r="4"/><ellipse cx="14" cy="12" rx="3" ry="4"/><ellipse cx="20" cy="12" rx="1" ry="4"/>',
+  discord: '<path d="M7 7a14 14 0 0110 0l2 10a12 12 0 01-4 2l-1-2a8 8 0 01-4 0l-1 2a12 12 0 01-4-2z"/><circle cx="9" cy="13" r="1" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/>',
+  telegram: '<path d="M21 3L3.7 9.7c-1.2.5-1.2 1.2-.2 1.5l4.4 1.4 1.7 5.2c.2.7.1 1 .8 1 .5 0 .7-.2 1-.5l2.1-2 4.4 3.2c.8.5 1.4.3 1.6-.8L22.3 5c.3-1.3-.5-1.9-1.3-2zM9 12l8.6-5.4c.4-.2.8-.1.5.2l-7.1 6.4-.3 3.3L9 12z"/>',
+  signal: '<path d="M5 17a8 8 0 1113 2l-5 2H6l2-3a8 8 0 01-3-1z" stroke-dasharray="2 2"/><path d="M9 12h6M9 15h4"/>',
+  whatsapp: '<path d="M5 19l-2 3 1-5a9 9 0 1115 2 9 9 0 01-14 0z"/><path d="M9 8c0 4 3 7 7 8l2-2-3-2-1 1a6 6 0 01-3-3l1-1-2-3z"/>',
+  x: '<path d="M23.95 4.57a9.84 9.84 0 01-2.83.78 4.93 4.93 0 002.16-2.72 9.87 9.87 0 01-3.13 1.2A4.92 4.92 0 0011.77 8.3 13.96 13.96 0 011.64 3.16a4.92 4.92 0 001.52 6.57 4.9 4.9 0 01-2.23-.62v.06a4.92 4.92 0 003.95 4.83 4.93 4.93 0 01-2.22.08 4.92 4.92 0 004.6 3.42A9.87 9.87 0 010 19.54a13.9 13.9 0 007.55 2.21c9.06 0 14.01-7.5 14.01-14v-.64a10.02 10.02 0 002.39-2.54z" fill="currentColor" stroke="none"/>',
+  bluesky: '<path d="M12 11C9 6 5 3 3 4c-2 1 0 7 3 9-3 0-4 3-2 5 2 2 6 1 8-3 2 4 6 5 8 3 2-2 1-5-2-5 3-2 5-8 3-9-2-1-6 2-9 7z"/>',
+  mastodon: '<path d="M4 16V8a6 6 0 016-6h4a6 6 0 016 6v8c0 4-3 6-8 6-3 0-5-1-6-3M8 15V9a2 2 0 014 0v6M12 15V9a2 2 0 014 0v6"/>',
+  threads: '<path d="M17 8c-1-3-4-5-7-4-5 1-7 7-5 12 2 5 9 7 13 3 3-3 2-8-2-9-4-1-7 0-7 3 0 2 3 3 5 1 2-2 1-6-2-7"/>',
+  instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>',
+  linkedin: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="7" cy="8" r="1" fill="currentColor"/><path d="M7 11v6M11 17v-6M11 14a3 3 0 016 0v3"/>',
+  facebook: '<path d="M14 21v-8h3l1-4h-4V7c0-1.2.5-2 2-2h2V2h-3c-3.5 0-5 2-5 5v2H7v4h3v8"/>',
+  reddit: '<circle cx="12" cy="13" r="7"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><path d="M9 16c2 1 4 1 6 0M12 6l1-3 4 1M19 9l2-1"/>',
+  tiktok: '<path d="M14 4v11a4 4 0 11-4-4M14 4c1 3 3 4 6 4"/>',
+  twitch: '<path d="M4 4h17v11l-5 5h-4l-3 2v-2H4zM10 8v6M15 8v6"/>',
+  spotify: '<circle cx="12" cy="12" r="9"/><path d="M7 9c4-1 8-.5 11 1M8 13c3-.7 7-.3 9 1M9 16c2-.4 5-.2 7 .7"/>',
+  steam: '<circle cx="12" cy="12" r="9"/><circle cx="16" cy="8" r="2"/><path d="M4 15l6 3 4-6M7 18l-2 2"/>',
+  patreon: '<circle cx="15" cy="8" r="5"/><path d="M5 3v18"/>',
+  apple: '<path d="M15 7c-2-1-5 0-6 0-3 0-5 3-4 7 1 4 3 7 5 7 1 0 2-1 3-1s2 1 3 1c2 0 4-3 5-6-3-1-4-5-1-7-1-1-3-2-5-1zM14 6c0-2 1-4 3-4 0 2-1 4-3 4z"/>',
+  google: '<text x="4" y="18" fill="currentColor" stroke="none" font-size="17" font-weight="700">G</text>',
+  notion: '<rect x="3" y="3" width="18" height="18" rx="2"/><text x="6" y="17" fill="currentColor" stroke="none" font-size="14" font-weight="700">N</text>',
+  figma: '<circle cx="9" cy="6" r="3"/><circle cx="15" cy="6" r="3"/><circle cx="9" cy="12" r="3"/><circle cx="15" cy="12" r="3"/><circle cx="9" cy="18" r="3"/>',
+  microsoft: '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>',
+  ethereum: '<path d="M12 2l6 10-6 4-6-4zM6 13l6 9 6-9-6 4z"/>',
+  bitcoin: '<circle cx="12" cy="12" r="9"/><path d="M9 6h5a3 3 0 010 6H9h6a3 3 0 010 6H9M11 4v2M14 4v2M11 18v2M14 18v2"/>'
+};
+
+export function iconSvg(type) {
+  return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS[type] || PATHS.link}</svg>`;
+}

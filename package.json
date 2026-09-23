@@ -1,0 +1,15 @@
+{
+  "name": "personal-contact-hub",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "node --test && wrangler deploy --dry-run"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "wrangler": "^4.42.0"
+  }
+}
