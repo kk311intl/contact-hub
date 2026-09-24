@@ -73,3 +73,10 @@ test("allows an enabled link without a URL so its switch can be saved", () => {
   config.links[0].url = "";
   assert.deepEqual(validateConfig(config), []);
 });
+
+test("does not silently discard Instagram contacts", () => {
+  const link = { id: "instagram", type: "instagram", icon: "instagram", label: "Instagram", value: "", url: "https://instagram.com/example", enabled: true, order: 1 };
+  const config = normalizeConfig({ ...DEFAULT_CONFIG, links: [link] });
+  assert.deepEqual(config.links, [link]);
+  assert.deepEqual(validateConfig(config), []);
+});

@@ -4,7 +4,7 @@ import worker from "../src/index.js";
 import { createSession, sessionCookie } from "../src/auth.js";
 import { DEFAULT_CONFIG } from "../src/config.js";
 
-test("saving the page title updates the next public page load", async () => {
+test("saving the page title and redirect settings updates the next public page load", async () => {
   const values = new Map();
   const env = {
     SESSION_SECRET: "test-session-secret",
@@ -15,6 +15,8 @@ test("saving the page title updates the next public page load", async () => {
   };
   const config = structuredClone(DEFAULT_CONFIG);
   config.settings.siteTitle = "New page title";
+  config.settings.autoRedirectEnabled = true;
+  config.settings.autoRedirectSeconds = 8;
   const cookie = sessionCookie(await createSession(env.SESSION_SECRET));
   const save = await worker.fetch(new Request("https://example.com/api/admin/config", {
     method: "PUT",
@@ -22,8 +24,13 @@ test("saving the page title updates the next public page load", async () => {
     body: JSON.stringify(config)
   }), env);
   assert.equal(save.status, 200);
-  assert.equal((await save.json()).settings.siteTitle, "New page title");
+  const saved = await save.json();
+  assert.equal(saved.settings.siteTitle, "New page title");
+  assert.equal(saved.settings.autoRedirectEnabled, true);
+  assert.equal(saved.settings.autoRedirectSeconds, 8);
 
   const page = await worker.fetch(new Request("https://example.com/"), env);
-  assert.match(await page.text(), /<title>New page title<\/title>/);
+  const html = await page.text();
+  assert.match(html, /<title>New page title<\/title>/);
+  assert.match(html, /"autoRedirectEnabled":true,"autoRedirectSeconds":8/);
 });

@@ -9,6 +9,9 @@ test("icon picker separates generic and brand icons without losing choices", () 
   const brands = ICON_GROUPS.brands.map(([value]) => value);
   assert.ok(generic.includes("globe"));
   assert.ok(brands.includes("discord"));
+  assert.equal(brands[brands.indexOf("x") + 1], "x-logo");
+  assert.notEqual(iconSvg("x"), iconSvg("x-logo"));
+  for (const brand of ["messenger", "wechat", "snapchat", "pinterest", "kakaotalk", "weibo"]) assert.ok(brands.includes(brand));
   assert.equal(new Set([...generic, ...brands]).size, generic.length + brands.length);
   for (const value of [...generic, ...brands].filter((value) => value !== "link")) assert.notEqual(iconSvg(value), iconSvg("missing"));
 });

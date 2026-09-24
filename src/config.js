@@ -22,6 +22,8 @@ export const DEFAULT_CONFIG = Object.freeze({
     { id: "telegram", type: "telegram", label: "Telegram", value: "", url: "", enabled: false, order: 3 }
   ],
   settings: {
+    autoRedirectEnabled: false,
+    autoRedirectSeconds: 5,
     siteTitle: "",
     canonicalUrl: "",
     footerLinks: [
@@ -56,6 +58,8 @@ export function normalizeConfig(input) {
     bio: normalizeLocalized(input.bio, fallback.bio),
     links: normalizeLinks(input.links, fallback.links),
     settings: {
+      autoRedirectEnabled: input.settings?.autoRedirectEnabled ?? false,
+      autoRedirectSeconds: input.settings?.autoRedirectSeconds ?? 5,
       siteTitle: typeof input.settings?.siteTitle === "string" ? input.settings.siteTitle : fallback.settings.siteTitle,
       canonicalUrl: typeof input.settings?.canonicalUrl === "string" ? input.settings.canonicalUrl : "",
       footerLinks: normalizeFooterLinks(input.settings?.footerLinks, fallback.settings.footerLinks)
@@ -106,7 +110,7 @@ function normalizeLink(link) {
 
 function normalizeLinks(input, defaults) {
   if (!Array.isArray(input)) return defaults;
-  return input.map(normalizeLink).filter((link) => link && link.id !== "instagram" && link.type !== "instagram");
+  return input.map(normalizeLink).filter(Boolean);
 }
 
 export function validateConfig(config, language = "en") {
@@ -143,6 +147,10 @@ export function validateConfig(config, language = "en") {
     });
   }
   text(config?.settings?.siteTitle, v.fields.siteTitle, 120, false);
+  if (typeof config?.settings?.autoRedirectEnabled !== "boolean") errors.push(`autoRedirectEnabled ${v.boolean}`);
+  if (!Number.isInteger(config?.settings?.autoRedirectSeconds) || config.settings.autoRedirectSeconds < 1 || config.settings.autoRedirectSeconds > 10) {
+    errors.push(({ "zh-TW": "自動跳轉時間必須是 1–10 秒的整數", en: "Auto-redirect delay must be an integer from 1 to 10 seconds", ja: "自動移動までの時間は1〜10秒の整数にしてください" })[adminLanguage(language)]);
+  }
   text(config?.settings?.canonicalUrl, v.fields.canonical, 2048, false);
   if (config?.settings?.canonicalUrl && !isHttpUrl(config.settings.canonicalUrl)) errors.push(`${v.fields.canonical} ${v.canonical}`);
   if (!Array.isArray(config?.settings?.footerLinks) || config.settings.footerLinks.length > 1) {

@@ -163,6 +163,8 @@ function collect() {
   config.avatar = String(data.get("avatar") || "").trim() || uploadedAvatar;
   config.settings.siteTitle = String(data.get("siteTitle") || "").trim();
   config.settings.canonicalUrl = String(data.get("canonicalUrl") || "").trim();
+  config.settings.autoRedirectEnabled = form.elements.autoRedirectEnabled.checked;
+  config.settings.autoRedirectSeconds = Number(data.get("autoRedirectSeconds"));
   config.settings.footerLinks.forEach((link) => { link.label = link.label.trim(); link.url = link.url.trim(); });
   for (const lang of ["zh-TW", "en", "ja"]) {
     config.status[lang] = String(data.get(`status.${lang}`) || "").trim();
