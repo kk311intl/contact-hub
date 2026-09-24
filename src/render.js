@@ -35,6 +35,7 @@ export function renderHome(config, lang, origin, visitorCount = null, legacyPubl
         </section>
       </main>
       <footer><div class="footer-meta"><span class="footer-year">© ${currentYear}</span><span class="footer-credit">${legacyPublicUi ? "Powered by" : ui.credit} <strong data-footer-name>${escapeHtml(config.name)}</strong>${!legacyPublicUi && ui.creditEnd ? ` ${ui.creditEnd}` : ""}</span>${footerLinks.map((link) => `<a class="footer-link" href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`).join("")}</div><details class="footer-visitors" data-visitors${Number.isSafeInteger(visitorCount) && visitorCount > 0 ? ` data-count="${visitorCount}"` : ""}${visitorCount ? "" : " hidden"}><summary aria-label="${visitorCount ? escapeAttr(visitorText(lang, visitorCount)) : ""}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20v-6h4v6m2 0V6h4v14m2 0V10h4v10M3 20h18"/></svg><span class="footer-visitor-count" data-visitor-count aria-live="polite">${visitorCount ? escapeHtml(visitorText(lang, visitorCount)) : ""}</span></summary></details></footer>
+      <div class="toast" role="status" aria-live="polite" data-toast></div>
       ${bootstrap(config, lang)}
       <script type="module" src="/app-v3.js"></script>`
   });
@@ -133,10 +134,11 @@ function renderSiteLink(link, pending) {
 }
 
 function renderContactIcon(link, pending) {
-  const available = link.enabled && Boolean(link.url);
+  const available = link.enabled && Boolean(link.url || link.value?.trim());
   const label = `${link.label} — ${available ? (link.value || link.url) : pending}`;
   const content = `${iconSvg(link.icon || link.type)}<span class="sr-only">${escapeHtml(link.label)} — ${available ? escapeHtml(link.value || link.url) : `<span data-pending>${escapeHtml(pending)}</span>`}</span>`;
   if (!available) return `<span class="contact-icon-button disabled" aria-disabled="true" tabindex="0" data-tooltip="${escapeAttr(pending)}" data-pending-tooltip data-link-id="${escapeAttr(link.id)}">${content}</span>`;
+  if (!link.url) return `<button type="button" class="contact-icon-button" data-copy="${escapeAttr(link.value)}" aria-label="${escapeAttr(label)}" data-tooltip="${escapeAttr(link.label)}" data-link-id="${escapeAttr(link.id)}">${content}</button>`;
   const external = !link.url.toLowerCase().startsWith("mailto:");
   return `<a class="contact-icon-button" href="${escapeAttr(link.url)}" aria-label="${escapeAttr(label)}" data-tooltip="${escapeAttr(link.label)}"${external ? ` target="_blank" rel="noopener noreferrer"` : ""} data-link-id="${escapeAttr(link.id)}">${content}</a>`;
 }

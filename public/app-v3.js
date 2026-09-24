@@ -1,5 +1,10 @@
 const bootstrap = JSON.parse(document.querySelector("#bootstrap")?.textContent || "{}");
 const config = bootstrap.config;
+const copyMessages = {
+  "zh-TW": { success: "已複製帳戶", failure: "無法複製，請手動複製：" },
+  en: { success: "Account copied", failure: "Could not copy. Please copy manually: " },
+  ja: { success: "アカウントをコピーしました", failure: "コピーできませんでした。手動でコピーしてください：" }
+};
 const translations = {
   "zh-TW": { contact: "聯絡方式", websites: "網站", language: "語言", theme: "外觀", pending: "準備中", skip: "跳至主要內容", visitor: (n) => `第 ${n.toLocaleString("zh-TW")} 位來訪者` },
   en: { contact: "Contact", websites: "Websites", language: "Language", theme: "Appearance", pending: "Coming soon", skip: "Skip to content", visitor: (n) => `Visitor #${n.toLocaleString("en")}` },
@@ -21,6 +26,23 @@ document.querySelectorAll("[data-language]").forEach((select) => {
   select.addEventListener("change", () => applyLanguage(select.value, true));
 });
 applyLanguage(currentLanguage);
+
+let copyToastTimer;
+document.querySelectorAll("[data-copy]").forEach((button) => button.addEventListener("click", async () => {
+  let failed = false;
+  try {
+    await navigator.clipboard.writeText(button.dataset.copy);
+  } catch {
+    failed = true;
+  }
+  const lang = document.documentElement.lang === "zh-Hant" ? "zh-TW" : document.documentElement.lang;
+  const messages = copyMessages[lang] || copyMessages.en;
+  const toast = document.querySelector("[data-toast]");
+  clearTimeout(copyToastTimer);
+  toast.textContent = failed ? messages.failure + button.dataset.copy : messages.success;
+  toast.className = `toast show${failed ? " error" : ""}`;
+  if (!failed) copyToastTimer = setTimeout(() => toast.classList.remove("show"), 2500);
+}));
 
 const visitors = document.querySelector("[data-visitors]");
 visitors?.addEventListener("toggle", () => { if (!visitors.open) visitors.dataset.suppressHover = ""; });

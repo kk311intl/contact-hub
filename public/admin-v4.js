@@ -86,6 +86,10 @@ function createLinkCard(link, groupLinks, index) {
     article.querySelector('input[type="checkbox"]').addEventListener("change", (event) => { link.enabled = event.currentTarget.checked; markDirty(); });
     article.querySelectorAll("[data-key]").forEach((input) => { input.autocomplete = "off"; input.value = link[input.dataset.key]; input.addEventListener("input", () => { link[input.dataset.key] = input.value; if (link.type === "email" && input.dataset.key === "value") link.url = input.value ? `mailto:${input.value}` : ""; article.querySelector("strong").textContent = link.label || ui.unnamed; }); });
     const picker = article.querySelector("[data-icon-picker]");
+    const labelInput = article.querySelector('[data-key="label"]');
+    const currentIconLabel = iconLabels[link.icon] || Object.values(ICON_GROUPS).flat().find(([value]) => value === link.icon)?.[1];
+    let autoLabel = !link.label.trim() || link.label === ui.newLink || link.label === currentIconLabel;
+    labelInput.addEventListener("input", () => { autoLabel = !labelInput.value.trim(); });
     if (picker) {
       for (const [title, choices] of [[ui.genericIcons, ICON_GROUPS.generic], [ui.brandIcons, ICON_GROUPS.brands]]) {
         const group = document.createElement("div");
@@ -105,6 +109,11 @@ function createLinkCard(link, groupLinks, index) {
           button.setAttribute("aria-pressed", String(link.icon === value));
           button.innerHTML = iconSvg(value);
           button.addEventListener("click", () => {
+            if (autoLabel) {
+              link.label = button.title;
+              labelInput.value = link.label;
+              article.querySelector("strong").textContent = link.label;
+            }
             link.icon = value;
             picker.querySelectorAll(".icon-choice").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
             markDirty();

@@ -8,6 +8,8 @@
 
 這是一個可部署到 Cloudflare Workers 的個人聯絡頁，附密碼登入後台、可編輯的網站與聯絡連結、頭像及訪客計數。需要 Node.js 20 以上、npm 和 Cloudflare Workers 帳戶；使用 Workers、KV、SQLite Durable Object，可用於免費方案，但仍受 Cloudflare 額度限制。
 
+聯絡圖標有網址時開啟連結；網址留空但有帳戶內容時，點擊即可複製（需 HTTPS 或 localhost）。選擇圖標會自動填入空白或預設名稱，保留自訂名稱。
+
 1. 執行 `npm ci`，複製 `wrangler.example.jsonc` 為受 Git 忽略的 `wrangler.jsonc`。將 `name` 改為你自己的、尚未使用的 Worker 名稱。設定 `ADMIN_LANGUAGE` 為 `en`（預設）、`zh-TW` 或 `ja`；它只固定後台語言。訪客頁依瀏覽器語言顯示，並可手動切換及記住選擇。
 2. 由帳號持有人執行 `npx wrangler login`；執行 `npx wrangler kv namespace create PROFILE_KV`，把建立結果中的 namespace ID 填入 `wrangler.jsonc` 的 `YOUR_KV_NAMESPACE_ID`。不要共用別人的 KV。
 3. 複製 `.dev.vars.example` 為受 Git 忽略的 `.dev.vars`，在本機填入獨一的 `ADMIN_PASSWORD` 與隨機、足夠長的 `SESSION_SECRET`。勿提交此檔或使用範例值。執行 `npm run check`，本機預覽可用 `npm run dev`。
@@ -21,6 +23,8 @@
 
 Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ページです。パスワードで入る管理画面、編集可能なリンク・画像、訪問者カウンターがあります。Node.js 20 以上、npm、Cloudflare Workers アカウントが必要です。Workers、KV、SQLite Durable Object を使い、無料プランでも利用できますが、無料枠の制限は適用されます。
 
+連絡先アイコンは URL があればリンクを開き、URL が空欄でアカウントが入力されていればクリックでコピーします（HTTPS または localhost が必要です）。アイコンを選ぶと空欄または既定の表示名が自動入力され、手動で付けた名前は保持されます。
+
 1. `npm ci` を実行し、`wrangler.example.jsonc` を Git 対象外の `wrangler.jsonc` にコピーします。`name` を未使用の自分専用 Worker 名に変更します。`ADMIN_LANGUAGE` は既定の `en`、`zh-TW`、`ja` から選びます。これは管理画面だけの言語設定で、公開ページはブラウザー言語に応じて表示され、訪問者が切り替え・保存できます。
 2. アカウント所有者が `npx wrangler login` を実行します。`npx wrangler kv namespace create PROFILE_KV` で KV を作り、返された namespace ID を `wrangler.jsonc` の `YOUR_KV_NAMESPACE_ID` に設定します。他人の KV は使わないでください。
 3. `.dev.vars.example` を Git 対象外の `.dev.vars` にコピーし、固有の `ADMIN_PASSWORD` と十分に長いランダムな `SESSION_SECRET` をローカルで設定します。例の値を使わず、ファイルをコミットしないでください。`npm run check` で確認し、ローカル表示には `npm run dev` を使えます。
@@ -33,6 +37,8 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 > No-code deployment prompt for an AI coding agent: Read this repository's README, `package.json`, `wrangler.example.jsonc`, and the actual code, then guide me through deploying Contact Hub to my own Cloudflare account. Check that I have Node.js and a Workers account. Use this version's Worker, KV, SQLite Durable Object, static assets, and two required secrets to install, configure, test, deploy, troubleshoot, and verify the URL. Ask only for missing values. Let me choose `zh-TW`, `ja`, or `en` as the fixed admin language; visitors must still be able to switch among all three. I, the account holder, must perform sign-in, authorization, secret entry, and any identity or physical-account steps. Never reveal secrets in chat, terminal output, or Git. Check for existing Worker names and resources before deployment; do not overwrite anything without my approval. Do not redesign the project, and report only steps you have actually verified.
 
 Contact Hub is a personal links and contact page for Cloudflare Workers, with a password-protected editor, editable avatar and links, and a visitor counter. You need Node.js 20+, npm, and a Cloudflare Workers account. It uses Workers, KV, and a SQLite-backed Durable Object. It can run on the Free plan, subject to Cloudflare's limits.
+
+Contact icons open their URL when provided. With no URL but an account value, clicking copies the account (requires HTTPS or localhost). Choosing an icon fills a blank or default name without replacing a custom name.
 
 1. Run `npm ci`. Copy `wrangler.example.jsonc` to the Git-ignored `wrangler.jsonc`, and change `name` to a unique Worker name that you own. Set `ADMIN_LANGUAGE` to `en` (default), `zh-TW`, or `ja`. This fixes only the admin language; the public page detects the browser language and lets visitors switch and save their choice.
 2. As the account holder, run `npx wrangler login`. Run `npx wrangler kv namespace create PROFILE_KV`, then place the returned namespace ID in `wrangler.jsonc` in place of `YOUR_KV_NAMESPACE_ID`. Do not reuse someone else's KV.

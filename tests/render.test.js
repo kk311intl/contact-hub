@@ -34,6 +34,26 @@ test("renders custom contact icons and does not restore deleted contacts", () =>
   assert.doesNotMatch(html, /data-link-id="telegram"/);
 });
 
+test("contacts copy accounts only when enabled and without a URL", () => {
+  const config = normalizeConfig(DEFAULT_CONFIG);
+  const contact = { id: "copy-test", type: "contact", icon: "discord", label: "Discord", value: 'user"<&', url: "", enabled: true, order: 1 };
+  config.links = [contact];
+  for (const lang of ["zh-TW", "en", "ja"]) {
+    const html = renderHome(config, lang, "https://example.com");
+    assert.match(html, /<button type="button" class="contact-icon-button" data-copy="user&quot;&lt;&amp;"/);
+    assert.match(html, /role="status" aria-live="polite" data-toast/);
+  }
+  contact.url = "https://example.com/contact";
+  assert.match(renderHome(config, "en", "https://example.com"), /<a class="contact-icon-button" href="https:\/\/example.com\/contact"/);
+  assert.doesNotMatch(renderHome(config, "en", "https://example.com"), /data-copy=/);
+  contact.url = "";
+  contact.enabled = false;
+  assert.doesNotMatch(renderHome(config, "en", "https://example.com"), /data-copy=/);
+  contact.enabled = true;
+  contact.value = " ";
+  assert.match(renderHome(config, "en", "https://example.com"), /contact-icon-button disabled/);
+});
+
 test("uses the editable page title and avatar as the favicon", () => {
   const config = normalizeConfig(DEFAULT_CONFIG);
   config.settings.siteTitle = "My Hub";
