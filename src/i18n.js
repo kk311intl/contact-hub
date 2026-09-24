@@ -1,6 +1,6 @@
 export const UI = {
   "zh-TW": {
-    contact: "聯絡方式", websites: "網站", pending: "準備中", skip: "跳至主要內容", notFound: "找不到頁面", back: "返回首頁", language: "語言", appearance: "外觀", preferences: "網站外觀", credit: "由", creditEnd: "製作", visitor: "位來訪者",
+    contact: "聯絡方式", websites: "網站", pending: "準備中", skip: "跳至主要內容", notFound: "找不到頁面", back: "返回首頁", language: "語言", appearance: "外觀", preferences: "網站外觀", credit: "由", creditEnd: "製作",
     admin: {
       title: "管理後台", description: "個人聯絡頁管理後台", content: "內容管理", menu: "管理選單", profile: "個人資料", bio: "個人簡介", links: "聯絡連結", settings: "網站設定", viewSite: "查看網站", logout: "登出", save: "儲存變更",
       profileHelp: "設定公開顯示的身份與狀態。", name: "名稱", avatar: "頭像", avatarHelp: "上傳 JPG、PNG 或 WebP；會自動裁切及壓縮。", chooseImage: "選擇圖片", remove: "移除", imageUrl: "圖片網址（選填）", imageUrlHelp: "可上傳圖片或填寫 http(s) 圖片網址；留空會顯示名稱縮寫。", currentAvatar: "目前頭像", status: "狀態",
@@ -12,7 +12,7 @@ export const UI = {
     icons: { globe: "網站", link: "連結", home: "首頁", blog: "文章", rss: "RSS", code: "程式碼", book: "書籍", briefcase: "工作", store: "商店", chain: "鏈上", email: "郵件", phone: "電話", message: "訊息", calendar: "日曆", map: "地圖", camera: "相機", cloud: "雲端" }
   },
   en: {
-    contact: "Contact", websites: "Websites", pending: "Coming soon", skip: "Skip to content", notFound: "Page not found", back: "Back home", language: "Language", appearance: "Appearance", preferences: "Site appearance", credit: "Powered by", creditEnd: "", visitor: "Visitor #",
+    contact: "Contact", websites: "Websites", pending: "Coming soon", skip: "Skip to content", notFound: "Page not found", back: "Back home", language: "Language", appearance: "Appearance", preferences: "Site appearance", credit: "Powered by", creditEnd: "",
     admin: {
       title: "Admin", description: "Contact Hub administration", content: "Content", menu: "Admin navigation", profile: "Profile", bio: "Bio", links: "Contact links", settings: "Site settings", viewSite: "View site", logout: "Log out", save: "Save changes",
       profileHelp: "Set your public identity and status.", name: "Name", avatar: "Avatar", avatarHelp: "Upload JPG, PNG, or WebP; the image is cropped and compressed automatically.", chooseImage: "Choose image", remove: "Remove", imageUrl: "Image URL (optional)", imageUrlHelp: "Upload an image or enter an http(s) image URL. Leave blank to show your initials.", currentAvatar: "Current avatar", status: "Status",
@@ -24,7 +24,7 @@ export const UI = {
     icons: { globe: "Website", link: "Link", home: "Home", blog: "Article", rss: "RSS", code: "Code", book: "Book", briefcase: "Work", store: "Store", chain: "On-chain", email: "Email", phone: "Phone", message: "Message", calendar: "Calendar", map: "Map", camera: "Camera", cloud: "Cloud" }
   },
   ja: {
-    contact: "連絡先", websites: "ウェブサイト", pending: "準備中", skip: "本文へ移動", notFound: "ページが見つかりません", back: "ホームに戻る", language: "言語", appearance: "表示設定", preferences: "サイトの表示設定", credit: "制作：", creditEnd: "", visitor: "人目の訪問者",
+    contact: "連絡先", websites: "ウェブサイト", pending: "準備中", skip: "本文へ移動", notFound: "ページが見つかりません", back: "ホームに戻る", language: "言語", appearance: "表示設定", preferences: "サイトの表示設定", credit: "制作：", creditEnd: "",
     admin: {
       title: "管理画面", description: "Contact Hub 管理画面", content: "コンテンツ管理", menu: "管理メニュー", profile: "プロフィール", bio: "自己紹介", links: "連絡先リンク", settings: "サイト設定", viewSite: "サイトを見る", logout: "ログアウト", save: "変更を保存",
       profileHelp: "公開する名前とステータスを設定します。", name: "名前", avatar: "アイコン画像", avatarHelp: "JPG・PNG・WebP をアップロードできます。自動でトリミング・圧縮します。", chooseImage: "画像を選ぶ", remove: "削除", imageUrl: "画像 URL（任意）", imageUrlHelp: "画像をアップロードするか、http(s) の画像 URL を入力してください。空欄なら名前の頭文字を表示します。", currentAvatar: "現在の画像", status: "ステータス",

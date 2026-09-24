@@ -65,8 +65,6 @@ function applyLanguage(language, persist = false) {
   if (visitor?.dataset.count) visitor.textContent = ui.visitor(Number(visitor.dataset.count));
   document.querySelector("[data-bio]").textContent = config.bio[lang] || config.bio.en;
   document.querySelector("[data-status]").textContent = config.status[lang] || config.status.en;
-  const contactTitle = document.querySelector("#contact-title");
-  if (contactTitle) contactTitle.textContent = ui.contact;
   const websitesTitle = document.querySelector("[data-websites-title]");
   if (websitesTitle) websitesTitle.textContent = ui.websites;
   document.querySelector("[data-contact-icons]")?.setAttribute("aria-label", ui.contact);

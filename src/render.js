@@ -126,7 +126,7 @@ function preferenceControls(lang, legacy = false) {
 function renderSiteLink(link, pending) {
   const available = link.enabled && Boolean(link.url);
   const classes = `site-card${available ? "" : " disabled"}`;
-  const content = `<span class="link-icon" aria-hidden="true">${icon(link.icon || link.type)}</span><span class="link-copy"><strong>${escapeHtml(link.label)}</strong><small${available ? "" : " data-pending"}>${escapeHtml(available ? (link.value || link.url) : pending)}</small></span><span class="arrow" aria-hidden="true">${available ? "↗" : "—"}</span>`;
+  const content = `<span class="link-icon" aria-hidden="true">${iconSvg(link.icon || link.type)}</span><span class="link-copy"><strong>${escapeHtml(link.label)}</strong><small${available ? "" : " data-pending"}>${escapeHtml(available ? (link.value || link.url) : pending)}</small></span><span class="arrow" aria-hidden="true">${available ? "↗" : "—"}</span>`;
   if (!available) return `<div class="${classes}" aria-disabled="true" data-link-id="${escapeAttr(link.id)}">${content}</div>`;
   const external = !link.url.toLowerCase().startsWith("mailto:");
   return `<a class="${classes}" href="${escapeAttr(link.url)}"${external ? ` target="_blank" rel="noopener noreferrer"` : ""} data-link-id="${escapeAttr(link.id)}">${content}</a>`;
@@ -135,13 +135,11 @@ function renderSiteLink(link, pending) {
 function renderContactIcon(link, pending) {
   const available = link.enabled && Boolean(link.url);
   const label = `${link.label} — ${available ? (link.value || link.url) : pending}`;
-  const content = `${icon(link.icon || link.type)}<span class="sr-only">${escapeHtml(link.label)} — ${available ? escapeHtml(link.value || link.url) : `<span data-pending>${escapeHtml(pending)}</span>`}</span>`;
+  const content = `${iconSvg(link.icon || link.type)}<span class="sr-only">${escapeHtml(link.label)} — ${available ? escapeHtml(link.value || link.url) : `<span data-pending>${escapeHtml(pending)}</span>`}</span>`;
   if (!available) return `<span class="contact-icon-button disabled" aria-disabled="true" tabindex="0" data-tooltip="${escapeAttr(pending)}" data-pending-tooltip data-link-id="${escapeAttr(link.id)}">${content}</span>`;
   const external = !link.url.toLowerCase().startsWith("mailto:");
   return `<a class="contact-icon-button" href="${escapeAttr(link.url)}" aria-label="${escapeAttr(label)}" data-tooltip="${escapeAttr(link.label)}"${external ? ` target="_blank" rel="noopener noreferrer"` : ""} data-link-id="${escapeAttr(link.id)}">${content}</a>`;
 }
-
-function icon(type) { return iconSvg(type); }
 
 function field(name, label, value, type, maxlength, hint = "") {
   return `<label class="field"><span>${label}</span><input name="${name}" type="${type}" maxlength="${maxlength}" value="${escapeAttr(value)}">${hint ? `<small>${hint}</small>` : ""}</label>`;
