@@ -15,7 +15,7 @@
 3. 複製 `.dev.vars.example` 為受 Git 忽略的 `.dev.vars`，在本機填入獨一的 `ADMIN_PASSWORD` 與隨機、足夠長的 `SESSION_SECRET`。勿提交此檔或使用範例值。執行 `npm run check`，本機預覽可用 `npm run dev`。
 4. 確認 Worker 名稱不會覆寫現有服務後，首次執行 `npx wrangler deploy --secrets-file .dev.vars`。部署後開啟 Wrangler 回報的 `workers.dev` 網址檢查公開頁及 `/admin/login`。首次登入用設定的密碼；後續可在後台修改。換密碼後，KV 中的新密碼會覆蓋初始 Secret。日後更新用 `npx wrangler deploy --keep-vars --strict`，不必重送本機 Secret；若檢查到遠端設定衝突，先查明原因。
 
-後台可更改公開名稱、三語簡介與狀態、頭像、連結、網頁標題和頁尾連結；公開頁點頭像五次也可進入登入頁。頭像與資料會存在 KV 中，公開頁資料可被訪客讀取，請勿輸入私人資訊。自訂網域和防濫用 WAF 規則需自行在 Cloudflare 設定；程式不會代你啟用。免費額度耗盡可能導致請求失敗。Worker 版本回退不會還原 KV 或 Durable Object 資料，更新前請另外備份重要設定。原始碼以 MIT 授權；內附 Kalam 字體依其 `public/fonts/Kalam-OFL.txt` 的 SIL OFL 1.1 授權。服務商圖示僅用於識別，其商標仍屬各權利人。
+後台可更改公開名稱、三語簡介與狀態、頭像、連結、網頁標題和頁尾連結；公開頁點頭像五次也可進入登入頁。頭像與資料會存在 KV 中，公開頁資料可被訪客讀取，請勿輸入私人資訊。自訂網域和防濫用 WAF 規則需自行在 Cloudflare 設定；程式不會代你啟用。免費額度耗盡可能導致請求失敗。Worker 版本回退不會還原 KV 或 Durable Object 資料，更新前請另外備份重要設定。原始碼以 GNU GPL v3（僅第 3 版，`GPL-3.0-only`，見 [LICENSE](LICENSE)）授權；內附 Kalam 字體依其 `public/fonts/Kalam-OFL.txt` 的 SIL OFL 1.1 授權。服務商圖示僅用於識別，其商標仍屬各權利人。
 
 ## 日本語
 
@@ -30,7 +30,7 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 3. `.dev.vars.example` を Git 対象外の `.dev.vars` にコピーし、固有の `ADMIN_PASSWORD` と十分に長いランダムな `SESSION_SECRET` をローカルで設定します。例の値を使わず、ファイルをコミットしないでください。`npm run check` で確認し、ローカル表示には `npm run dev` を使えます。
 4. 既存サービスと Worker 名が衝突しないことを確かめてから、初回は `npx wrangler deploy --secrets-file .dev.vars` を実行します。表示された `workers.dev` URL の公開ページと `/admin/login` を確認します。初回は設定したパスワードでログインし、後から管理画面で変更できます。変更後は KV の新しいパスワードが初期 Secret より優先されます。以後の更新には `npx wrangler deploy --keep-vars --strict` を使い、ローカルの Secret を再送しません。リモート設定との競合が出たら、原因を確認してください。
 
-管理画面では名前、三言語の紹介文・ステータス、画像、リンク、ページタイトル、フッターリンクを編集できます。公開ページの画像を五回クリックしてもログイン画面へ移動できます。画像と設定は KV に保存され、公開ページの情報は訪問者にも読めるため、非公開情報を入力しないでください。独自ドメインや不正アクセス対策の WAF ルールは Cloudflare 側で別途設定してください。無料枠を超えるとリクエストが失敗する場合があります。Worker のバージョンを戻しても KV や Durable Object のデータは戻らないため、重要な設定は更新前に別途保存してください。コードは MIT License、同梱の Kalam フォントは `public/fonts/Kalam-OFL.txt` の SIL OFL 1.1 です。サービスのロゴや商標は各権利者に帰属します。
+管理画面では名前、三言語の紹介文・ステータス、画像、リンク、ページタイトル、フッターリンクを編集できます。公開ページの画像を五回クリックしてもログイン画面へ移動できます。画像と設定は KV に保存され、公開ページの情報は訪問者にも読めるため、非公開情報を入力しないでください。独自ドメインや不正アクセス対策の WAF ルールは Cloudflare 側で別途設定してください。無料枠を超えるとリクエストが失敗する場合があります。Worker のバージョンを戻しても KV や Durable Object のデータは戻らないため、重要な設定は更新前に別途保存してください。コードは GNU GPL v3（バージョン 3 のみ、`GPL-3.0-only`、[LICENSE](LICENSE) 参照）、同梱の Kalam フォントは `public/fonts/Kalam-OFL.txt` の SIL OFL 1.1 です。サービスのロゴや商標は各権利者に帰属します。
 
 ## English
 
@@ -45,4 +45,6 @@ Contact icons open their URL when provided. With no URL but an account value, cl
 3. Copy `.dev.vars.example` to the Git-ignored `.dev.vars`. Enter a unique `ADMIN_PASSWORD` and a long random `SESSION_SECRET` locally; never commit this file or use its placeholder values. Run `npm run check`; use `npm run dev` for a local preview.
 4. Verify that your Worker name will not overwrite an existing service, then run `npx wrangler deploy --secrets-file .dev.vars` for the first deployment. Check the reported `workers.dev` public URL and `/admin/login`. Sign in with the configured password; you can change it in the editor. After a change, the new password stored in KV takes precedence over the initial secret. For later updates, use `npx wrangler deploy --keep-vars --strict` without re-uploading the local secrets. Investigate any remote configuration conflict before proceeding.
 
-The editor changes your public name, three-language bio and status, avatar, links, browser title, and footer link. Five clicks on the public avatar also open the login page. The avatar and settings live in KV, and public-page data is readable by visitors, so do not enter private information. Configure a custom domain and abuse-mitigation WAF rules separately in Cloudflare; this code does not enable them. Requests may fail after Free-plan quotas are exhausted. Rolling back a Worker version does not restore KV or Durable Object data; back up important settings separately before updates. Code is MIT licensed; the bundled Kalam font remains under SIL OFL 1.1 in `public/fonts/Kalam-OFL.txt`. Service logos are identifiers, and their trademarks belong to their owners.
+The editor changes your public name, three-language bio and status, avatar, links, browser title, and footer link. Five clicks on the public avatar also open the login page. The avatar and settings live in KV, and public-page data is readable by visitors, so do not enter private information. Configure a custom domain and abuse-mitigation WAF rules separately in Cloudflare; this code does not enable them. Requests may fail after Free-plan quotas are exhausted. Rolling back a Worker version does not restore KV or Durable Object data; back up important settings separately before updates. Code is licensed under GNU GPL version 3 only (`GPL-3.0-only`; see [LICENSE](LICENSE)); the bundled Kalam font remains under SIL OFL 1.1 in `public/fonts/Kalam-OFL.txt`. Service logos are identifiers, and their trademarks belong to their owners.
+
+Copyright (c) 2026 Contact Hub contributors.
