@@ -59,9 +59,11 @@ h1 { margin:0; font-size:clamp(2.3rem,7vw,4rem); line-height:1.04; letter-spacin
 footer { display:flex; justify-content:space-between; align-items:center; gap:20px; width:min(100% - 40px,1080px); margin:0 auto; padding:26px 0 34px; border-top:1px solid var(--border); color:var(--muted); font-size:.8125rem }.footer-meta { display:flex; flex-wrap:wrap; align-items:center; gap:7px 14px }.footer-meta>*+* { position:relative }.footer-meta>*+*:before { content:"·"; position:absolute; left:-9px; color:var(--border-strong) }.footer-year { font-family:ui-monospace,"SFMono-Regular",Consolas,monospace; font-size:.75rem; letter-spacing:.025em }.footer-credit,.footer-credit strong { color:inherit; font-weight:400 }.footer-link { color:var(--text); font-weight:600; letter-spacing:.015em; text-underline-offset:4px; text-decoration-color:var(--border-strong) }.footer-link:hover { text-decoration-color:currentColor }
 .footer-visitors { position:relative; margin-left:auto; flex:none; font-size:.75rem; font-variant-numeric:tabular-nums }
 .footer-visitors[hidden] { display:none }
-.footer-visitors summary { display:grid; place-items:center; width:36px; height:36px; border:1px solid var(--border); border-radius:50%; background:var(--control); color:var(--muted); list-style:none; cursor:pointer }
+.footer-visitors summary { display:grid; place-items:center; width:36px; height:36px; border:1px solid transparent; border-radius:50%; background:transparent; color:var(--muted); list-style:none; cursor:pointer }
+.footer-visitors summary svg { width:18px; height:18px; stroke-width:1.5; opacity:.65; transition:opacity .15s ease }
 .footer-visitors summary::-webkit-details-marker { display:none }
-.footer-visitors summary:hover,.footer-visitors[open] summary { color:var(--text); border-color:var(--border-strong) }
+.footer-visitors summary:hover,.footer-visitors[open] summary { color:var(--text); border-color:var(--border) }
+.footer-visitors summary:hover svg,.footer-visitors[open] summary svg { opacity:1 }
 .footer-visitor-count { position:absolute; right:0; bottom:calc(100% + 8px); z-index:5; padding:7px 10px; border-radius:8px; background:var(--text); color:var(--bg); white-space:nowrap; visibility:hidden; opacity:0; transform:translateY(4px); pointer-events:none; transition:opacity .15s ease,transform .15s ease,visibility .15s ease }
 .footer-visitors:hover:not([data-suppress-hover]) .footer-visitor-count,.footer-visitors[open] .footer-visitor-count { visibility:visible; opacity:1; transform:none }
 .reveal { animation:reveal .65s cubic-bezier(.2,.75,.25,1) both }.reveal-2 { animation-delay:.12s }

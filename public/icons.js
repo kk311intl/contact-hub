@@ -53,5 +53,6 @@ const PATHS = {
 };
 
 export function iconSvg(type) {
-  return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS[type] || PATHS.link}</svg>`;
+  const viewBox = ICON_GROUPS.brands.some(([value]) => value === type) ? "-2 -2 28 28" : "0 0 24 24";
+  return `<svg viewBox="${viewBox}" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS[type] || PATHS.link}</svg>`;
 }
