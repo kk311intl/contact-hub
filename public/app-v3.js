@@ -22,6 +22,10 @@ document.querySelectorAll("[data-language]").forEach((select) => {
 });
 applyLanguage(currentLanguage);
 
+const visitors = document.querySelector("[data-visitors]");
+visitors?.addEventListener("toggle", () => { if (!visitors.open) visitors.dataset.suppressHover = ""; });
+visitors?.addEventListener("mouseleave", () => { delete visitors.dataset.suppressHover; });
+
 document.querySelector("[data-avatar]")?.addEventListener("error", (event) => {
   event.currentTarget.hidden = true;
 });
@@ -62,7 +66,11 @@ function applyLanguage(language, persist = false) {
   if (!config) return;
   const ui = translations[lang];
   const visitor = document.querySelector("[data-visitors]");
-  if (visitor?.dataset.count) visitor.textContent = ui.visitor(Number(visitor.dataset.count));
+  if (visitor?.dataset.count) {
+    const text = ui.visitor(Number(visitor.dataset.count));
+    visitor.querySelector("[data-visitor-count]").textContent = text;
+    visitor.querySelector("summary").setAttribute("aria-label", text);
+  }
   document.querySelector("[data-bio]").textContent = config.bio[lang] || config.bio.en;
   document.querySelector("[data-status]").textContent = config.status[lang] || config.status.en;
   const websitesTitle = document.querySelector("[data-websites-title]");

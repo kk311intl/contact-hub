@@ -29,9 +29,10 @@ test("public page counts a browser once", async () => {
   assert.match(await japanese.text(), /1人目の訪問者/);
 });
 
-test("public footer reserves a right-hand visitor count slot", async () => {
+test("public footer reserves a collapsed visitor statistics control", async () => {
   const page = await worker.fetch(new Request("https://example.com/"), { PROFILE_KV: { async get() { return DEFAULT_CONFIG; } } });
   const html = await page.text();
-  assert.match(html, /class="footer-visitors" data-visitors aria-live="polite" hidden/);
+  assert.match(html, /<details class="footer-visitors" data-visitors hidden>/);
+  assert.match(html, /<summary aria-label=""/);
   assert.match(html, /href="\/styles-v6\.css"/);
 });

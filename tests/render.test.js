@@ -2,6 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { DEFAULT_CONFIG, normalizeConfig } from "../src/config.js";
 import { renderAdmin, renderHome, renderLogin } from "../src/render.js";
+import { ICON_GROUPS, iconSvg } from "../public/icons.js";
+
+test("icon picker separates generic and brand icons without losing choices", () => {
+  const generic = ICON_GROUPS.generic.map(([value]) => value);
+  const brands = ICON_GROUPS.brands.map(([value]) => value);
+  assert.ok(generic.includes("globe"));
+  assert.ok(brands.includes("discord"));
+  assert.equal(new Set([...generic, ...brands]).size, generic.length + brands.length);
+  for (const value of [...generic, ...brands].filter((value) => value !== "link")) assert.notEqual(iconSvg(value), iconSvg("missing"));
+});
 
 test("keeps visitor language selection and contact icons above website cards", () => {
   const html = renderHome(normalizeConfig(DEFAULT_CONFIG), "zh-TW", "https://example.com");
@@ -55,13 +65,24 @@ test("legacy public presentation keeps the existing language switcher and footer
   assert.match(html, /123人目の訪問者/);
 });
 
+test("visitor count starts behind a click-to-open summary in all three languages", () => {
+  for (const [lang, label] of [["zh-TW", "第 123 位來訪者"], ["en", "Visitor #123"], ["ja", "123人目の訪問者"]]) {
+    const html = renderHome(normalizeConfig(DEFAULT_CONFIG), lang, "https://example.com", 123);
+    assert.match(html, /<details class="footer-visitors" data-visitors data-count="123"><summary/);
+    assert.ok(html.includes(`<summary aria-label="${label}"`));
+    assert.ok(html.includes(`data-visitor-count aria-live="polite">${label}</span>`));
+  }
+});
+
 test("admin and login follow the deployment's fixed language", () => {
   const config = normalizeConfig(DEFAULT_CONFIG);
   config.avatar = "https://example.com/avatar.webp";
-  for (const [lang, save, signIn] of [["zh-TW", "儲存變更", "登入"], ["en", "Save changes", "Sign in"], ["ja", "変更を保存", "ログイン"]]) {
+  for (const [lang, save, signIn, generic, brand] of [["zh-TW", "儲存變更", "登入", "通用圖示", "品牌圖示"], ["en", "Save changes", "Sign in", "General", "Brands"], ["ja", "変更を保存", "ログイン", "汎用アイコン", "ブランドアイコン"]]) {
     const admin = renderAdmin(config, lang);
     assert.ok(admin.includes(`>${save}</button>`));
     assert.match(admin, /id="bootstrap"/);
+    assert.ok(admin.includes(`"genericIcons":"${generic}"`));
+    assert.ok(admin.includes(`"brandIcons":"${brand}"`));
     const login = renderLogin(config, "", lang);
     assert.ok(login.includes(`<button type="submit">${signIn}</button>`));
     assert.match(login, /class="login-mark"[^>]*><img src="https:\/\/example\.com\/avatar\.webp"/);

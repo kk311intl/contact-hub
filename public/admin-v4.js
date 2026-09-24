@@ -1,4 +1,4 @@
-import { ICON_CHOICES, iconSvg } from "./icons.js";
+import { ICON_GROUPS, iconSvg } from "./icons.js";
 
 const bootstrap = JSON.parse(document.querySelector("#bootstrap").textContent);
 const ui = bootstrap.admin;
@@ -87,20 +87,30 @@ function createLinkCard(link, groupLinks, index) {
     article.querySelectorAll("[data-key]").forEach((input) => { input.autocomplete = "off"; input.value = link[input.dataset.key]; input.addEventListener("input", () => { link[input.dataset.key] = input.value; if (link.type === "email" && input.dataset.key === "value") link.url = input.value ? `mailto:${input.value}` : ""; article.querySelector("strong").textContent = link.label || ui.unnamed; }); });
     const picker = article.querySelector("[data-icon-picker]");
     if (picker) {
-      for (const [value, label] of ICON_CHOICES) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "icon-choice";
-        button.title = iconLabels[value] || label;
-        button.setAttribute("aria-label", button.title);
-        button.setAttribute("aria-pressed", String(link.icon === value));
-        button.innerHTML = iconSvg(value);
-        button.addEventListener("click", () => {
-          link.icon = value;
-          picker.querySelectorAll(".icon-choice").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
-          markDirty();
-        });
-        picker.append(button);
+      for (const [title, choices] of [[ui.genericIcons, ICON_GROUPS.generic], [ui.brandIcons, ICON_GROUPS.brands]]) {
+        const group = document.createElement("div");
+        group.className = "icon-picker-group";
+        const heading = document.createElement("strong");
+        heading.textContent = title;
+        const grid = document.createElement("div");
+        grid.className = "icon-picker-grid";
+        group.append(heading, grid);
+        picker.append(group);
+        for (const [value, label] of choices) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "icon-choice";
+          button.title = iconLabels[value] || label;
+          button.setAttribute("aria-label", button.title);
+          button.setAttribute("aria-pressed", String(link.icon === value));
+          button.innerHTML = iconSvg(value);
+          button.addEventListener("click", () => {
+            link.icon = value;
+            picker.querySelectorAll(".icon-choice").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
+            markDirty();
+          });
+          grid.append(button);
+        }
       }
     }
     article.querySelector('[data-move="up"]').disabled = index === 0;
