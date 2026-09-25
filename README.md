@@ -1,4 +1,4 @@
-# Contact Hub · v1.1.0
+# Contact Hub · v1.1.1
 
 [中文](#中文) · [日本語](#日本語) · [English](#english)
 
@@ -9,6 +9,8 @@
 這是一個可部署到 Cloudflare Workers 的個人聯絡頁，附密碼登入後台、可編輯的網站與聯絡連結、頭像及訪客計數。需要 Node.js 22 以上、npm 和 Cloudflare Workers 帳戶；使用 Workers、KV、SQLite Durable Object，可用於免費方案，但仍受 Cloudflare 額度限制。
 
 聯絡圖標有網址時開啟連結；網址留空但有帳戶內容時，點擊即可複製（需 HTTPS 或 localhost）。選擇圖標會自動填入空白或預設名稱，保留自訂名稱。
+
+儲存期間繼續編輯的內容會保留，需再按儲存。瀏覽器禁止儲存偏好時，語言與外觀仍可切換，但不會記住選擇。修改密碼會撤銷舊登入；受 Workers KV 同步延遲影響，不保證所有節點立即生效。
 
 後台「網站設定」可啟用 App 內自動跳轉（預設關閉），倒數預設 5 秒，可設 1–10 秒。僅選擇已啟用、具有同平台 HTTPS 網址的聯繫方式，按列表順序取第一個；不使用網站列表或純複製項目。點擊提示可取消，同一分頁工作階段只提示一次，背景頁面暫停倒數。UA 識別涵蓋 Facebook、Messenger、Instagram、Threads、X、LINE、TikTok、Snapchat、LinkedIn、WhatsApp、Reddit、Telegram、Pinterest、KakaoTalk、Weibo 的明確標記；Telegram iPhone 版另以 App 注入的 `TelegramWebviewProxy.postEvent` 識別；UA 與專用標記都無法辨識時不跳轉。網址不會預先連線檢查有效性，也不保證開啟原生 App。UA 僅在訪客瀏覽器內處理。微信不自動跳轉：可選微信圖標、填寫帳戶並留空網址，供訪客點擊複製。其他平台可開啟個人頁或有效的聊天／邀請連結，不代表一定直接進入對話。
 
@@ -27,6 +29,8 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 
 連絡先アイコンは URL があればリンクを開き、URL が空欄でアカウントが入力されていればクリックでコピーします（HTTPS または localhost が必要です）。アイコンを選ぶと空欄または既定の表示名が自動入力され、手動で付けた名前は保持されます。
 
+保存中に行った編集は保持されますが、もう一度保存する必要があります。ブラウザーが設定の保存を拒否しても言語と外観は切り替えられますが、選択は記憶されません。パスワード変更で古いログインは無効になりますが、Workers KV の同期に時間がかかるため、全拠点で即時に反映されるとは限りません。
+
 管理画面のサイト設定でアプリ内の自動移動を有効にできます（初期設定はオフ）。待ち時間は初期値5秒、1〜10秒で設定できます。有効な連絡先のうち、同じサービスのHTTPS URLを持つ最初の項目を表示順で選びます。サイト一覧やコピー専用項目は対象外です。通知を押すとキャンセルでき、同じタブのセッションでは一度だけ表示し、バックグラウンドでは待ち時間を止めます。Facebook、Messenger、Instagram、Threads、X、LINE、TikTok、Snapchat、LinkedIn、WhatsApp、Reddit、Telegram、Pinterest、KakaoTalk、Weiboの明示的なUA識別子に対応します。iPhone版Telegramはアプリが注入する `TelegramWebviewProxy.postEvent` でも識別します。UAと専用マーカーのどちらでも判別できなければ移動しません。URLの疎通確認やネイティブアプリの起動保証は行いません。UAは訪問者のブラウザー内だけで処理します。WeChatは自動移動の対象外です。アイコンとアカウントを設定し、URLを空欄にすればクリックでコピーできます。他のサービスでも、プロフィールやチャット・招待リンクを開く機能であり、必ず会話画面へ直接移動するとは限りません。
 
 1. `npm ci` を実行し、`wrangler.example.jsonc` を Git 対象外の `wrangler.jsonc` にコピーします。`name` を未使用の自分専用 Worker 名に変更します。`ADMIN_LANGUAGE` は既定の `en`、`zh-TW`、`ja` から選びます。これは管理画面だけの言語設定で、公開ページはブラウザー言語に応じて表示され、訪問者が切り替え・保存できます。
@@ -43,6 +47,8 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 Contact Hub is a personal links and contact page for Cloudflare Workers, with a password-protected editor, editable avatar and links, and a visitor counter. You need Node.js 22+, npm, and a Cloudflare Workers account. It uses Workers, KV, and a SQLite-backed Durable Object. It can run on the Free plan, subject to Cloudflare's limits.
 
 Contact icons open their URL when provided. With no URL but an account value, clicking copies the account (requires HTTPS or localhost). Choosing an icon fills a blank or default name without replacing a custom name.
+
+Edits made while a save is pending are kept and need another save. If browser storage is blocked, language and theme controls still work without remembering your choice. Changing the password revokes old sessions, but Workers KV propagation delays mean this is not immediate at every location.
 
 Site settings can enable in-app auto-redirect (off by default), with a default 5-second delay adjustable from 1–10 seconds. It selects the first enabled contact in display order with an HTTPS URL on the detected platform; website cards and copy-only contacts are excluded. Click the notice to cancel. It appears once per tab session and pauses while the page is hidden. Explicit UA markers are recognized for Facebook, Messenger, Instagram, Threads, X, LINE, TikTok, Snapchat, LinkedIn, WhatsApp, Reddit, Telegram, Pinterest, KakaoTalk, and Weibo. Telegram on iPhone is also identified by its injected `TelegramWebviewProxy.postEvent` bridge. Without an identifiable UA or app-specific marker, no redirect occurs. URLs are not probed for availability, and opening the native app is not guaranteed. UA processing stays in the visitor's browser. WeChat does not auto-redirect: select its icon, enter an account, and leave the URL blank for click-to-copy. Other platforms may open a profile or a valid chat/invite link, not necessarily a direct conversation.
 

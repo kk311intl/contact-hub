@@ -36,3 +36,24 @@ test("clipboard feedback follows the current visitor language and reports failur
     }
   }
 });
+
+test("denied storage does not prevent language, theme or event initialization", () => {
+  const source = readFileSync(new URL("../public/app-v3.js", import.meta.url), "utf8");
+  for (const language of ['zh-TW', 'ja', 'en']) {
+    const document = {
+      documentElement: { lang: 'en', dataset: {} },
+      querySelector: () => null, querySelectorAll: () => []
+    };
+    const context = vm.createContext({
+      document, navigator: { language },
+      localStorage: { getItem() { throw new Error('Denied'); }, setItem() { throw new Error('Denied'); } },
+      matchMedia: () => ({ matches: true, addEventListener() {} })
+    });
+    vm.runInContext(source, context);
+    assert.equal(document.documentElement.lang, language === 'zh-TW' ? 'zh-Hant' : language);
+    assert.equal(document.documentElement.dataset.theme, 'auto');
+    vm.runInContext("applyLanguage('ja', true); applyTheme('light', true)", context);
+    assert.equal(document.documentElement.lang, 'ja');
+    assert.equal(document.documentElement.dataset.theme, 'light');
+  }
+});

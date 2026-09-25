@@ -14,15 +14,15 @@ export async function credentialsValid(password, env, stored = null) {
   return constantTimeEqual(actual, expected);
 }
 
-export async function createSession(secret, now = Date.now()) {
+export async function createSession(secret, now = Date.now(), revision = "") {
   if (!secret) throw new Error("Missing SESSION_SECRET");
   const issued = Math.floor(now / 1000);
   const expires = Math.floor(now / 1000) + SESSION_SECONDS;
   const payload = `v1.${issued}.${expires}`;
-  return `${payload}.${await sign(payload, secret)}`;
+  return `${payload}.${await sign(payload, sessionKey(secret, revision))}`;
 }
 
-export async function sessionValid(request, secret, minimumIssued = 0, now = Date.now()) {
+export async function sessionValid(request, secret, minimumIssued = 0, now = Date.now(), revision = "") {
   if (!secret) return false;
   const token = readCookie(request.headers.get("Cookie") || "", COOKIE_NAME);
   const [version, issuedText, expiresText, signature, extra] = token?.split(".") || [];
@@ -30,7 +30,7 @@ export async function sessionValid(request, secret, minimumIssued = 0, now = Dat
   const issued = Number(issuedText);
   const expires = Number(expiresText);
   if (!Number.isSafeInteger(issued) || issued < minimumIssued || !Number.isSafeInteger(expires) || expires <= Math.floor(now / 1000)) return false;
-  const expected = await sign(`${version}.${issuedText}.${expiresText}`, secret);
+  const expected = await sign(`${version}.${issuedText}.${expiresText}`, sessionKey(secret, revision));
   return constantTimeEqual(new TextEncoder().encode(signature), new TextEncoder().encode(expected));
 }
 
@@ -40,8 +40,23 @@ export async function createPasswordRecord(password, now = Date.now()) {
     salt: base64Url(salt),
     hash: base64Url(await derivePassword(password, salt, PASSWORD_ITERATIONS)),
     iterations: PASSWORD_ITERATIONS,
-    changedAt: Math.floor(now / 1000)
+    changedAt: Math.floor(now / 1000),
+    sessionRevision: crypto.randomUUID()
   };
+}
+
+function sessionKey(secret, revision) {
+  return revision ? `${secret}:${revision}` : secret;
+}
+
+export async function loadAuth(env) {
+  const stored = await env.PROFILE_KV.get(AUTH_KEY, "json");
+  return stored && typeof stored === "object" ? stored : null;
+}
+
+export async function adminSessionValid(request, env) {
+  const auth = await loadAuth(env);
+  return sessionValid(request, env.SESSION_SECRET, auth?.changedAt || 0, Date.now(), auth?.sessionRevision || "");
 }
 
 async function verifyPassword(password, record) {

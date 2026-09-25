@@ -25,3 +25,14 @@ test("accepts a changed password record instead of the initial password", async 
   assert.equal(await credentialsValid("a new and secure password", env, record), true);
   assert.equal(await credentialsValid("correct horse", env, record), false);
 });
+
+test("password revisions revoke sessions even within the same clock tick", async () => {
+  const now = Date.UTC(2026, 8, 26) + 100;
+  const old = new Request('https://example.com/admin', { headers: { Cookie: sessionCookie(await createSession(env.SESSION_SECRET, now)) } });
+  const record = await createPasswordRecord('new password', now);
+  assert.equal(await sessionValid(old, env.SESSION_SECRET, record.changedAt, now, record.sessionRevision), false);
+  const current = new Request(old.url, { headers: { Cookie: sessionCookie(await createSession(env.SESSION_SECRET, now, record.sessionRevision)) } });
+  assert.equal(await sessionValid(current, env.SESSION_SECRET, record.changedAt, now, record.sessionRevision), true);
+  const next = await createPasswordRecord('another password', now);
+  assert.equal(await sessionValid(current, env.SESSION_SECRET, next.changedAt, now, next.sessionRevision), false);
+});

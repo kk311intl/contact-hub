@@ -254,19 +254,23 @@ function markDirty() {
 }
 
 async function save() {
+  if (saveButton.disabled) return;
   collect();
+  const submitted = JSON.stringify(config);
   saveButton.disabled = true;
   try {
-    const response = await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) });
+    const response = await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: submitted });
     const result = await response.json();
     if (!response.ok) throw new Error(result.details?.join("; ") || result.error || ui.saveFailed);
-    config = result;
+    collect();
+    const changedWhileSaving = JSON.stringify(config) !== submitted;
     saved = JSON.stringify(result);
-    // Event handlers in the editors close over their link objects. The API
-    // response replaces config, so rebuild both editors to bind subsequent
-    // edits to the newly saved objects.
-    renderLinks();
-    renderFooterLinks();
+    // Preserve newer edits and their handlers; only rebind when adopting the response.
+    if (!changedWhileSaving) {
+      config = result;
+      renderLinks();
+      renderFooterLinks();
+    }
     document.title = `${ui.title} — ${result.settings.siteTitle || result.name}`;
     markDirty();
     showToast(ui.saved);

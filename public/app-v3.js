@@ -10,10 +10,17 @@ const translations = {
   en: { contact: "Contact", websites: "Websites", language: "Language", theme: "Appearance", pending: "Coming soon", skip: "Skip to content", visitor: (n) => `Visitor #${n.toLocaleString("en")}` },
   ja: { contact: "連絡先", websites: "ウェブサイト", language: "言語", theme: "外観", pending: "準備中", skip: "本文へ移動", visitor: (n) => `${n.toLocaleString("ja")}人目の訪問者` }
 };
-const storedLanguage = localStorage.getItem("contact-language");
+function readPreference(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function writePreference(key, value) {
+  try { localStorage.setItem(key, value); } catch { /* Preferences still apply to this page. */ }
+}
+const storedLanguage = readPreference("contact-language");
 const currentLanguage = storedLanguage && translations[storedLanguage] ? storedLanguage : detectBrowserLanguage();
 const colorScheme = matchMedia("(prefers-color-scheme: dark)");
-let currentTheme = ["light", "dark"].includes(localStorage.getItem("contact-theme")) ? localStorage.getItem("contact-theme") : "auto";
+const storedTheme = readPreference("contact-theme");
+let currentTheme = ["light", "dark"].includes(storedTheme) ? storedTheme : "auto";
 applyTheme(currentTheme);
 
 document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.addEventListener("click", () => {
@@ -75,7 +82,7 @@ function applyTheme(theme, persist = false) {
   const selected = ["auto", "light", "dark"].includes(theme) ? theme : "auto";
   currentTheme = selected;
   document.documentElement.dataset.theme = selected;
-  if (persist) localStorage.setItem("contact-theme", selected);
+  if (persist) writePreference("contact-theme", selected);
   const isDark = selected === "dark" || (selected === "auto" && colorScheme.matches);
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.setAttribute("aria-checked", String(isDark)));
 }
@@ -83,7 +90,7 @@ function applyTheme(theme, persist = false) {
 function applyLanguage(language, persist = false) {
   const lang = translations[language] ? language : "en";
   document.documentElement.lang = lang === "zh-TW" ? "zh-Hant" : lang;
-  if (persist) localStorage.setItem("contact-language", lang);
+  if (persist) writePreference("contact-language", lang);
   document.querySelectorAll("[data-language]").forEach((select) => { select.value = lang; select.setAttribute("aria-label", translations[lang].language); });
   if (!config) return;
   const ui = translations[lang];

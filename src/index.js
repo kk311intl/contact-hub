@@ -1,5 +1,5 @@
 import { CONFIG_KEY, DEFAULT_CONFIG, MAX_BODY_BYTES, adminLanguage, detectLanguage, normalizeConfig, validateConfig } from "./config.js";
-import { AUTH_KEY, clearSessionCookie, createPasswordRecord, createSession, credentialsValid, sameOrigin, sessionCookie, sessionValid } from "./auth.js";
+import { AUTH_KEY, adminSessionValid, clearSessionCookie, createPasswordRecord, createSession, credentialsValid, loadAuth, sameOrigin, sessionCookie } from "./auth.js";
 import { renderAdmin, renderForbidden, renderHome, renderLogin, renderNotFound } from "./render.js";
 import { uiFor } from "./i18n.js";
 import { newVisitorCookie, visitorCookieValid, visitorIpHash } from "./visitors.js";
@@ -105,7 +105,7 @@ async function handleLogin(request, env, url, lang) {
   const password = String(data.get("password") || "");
   const auth = await loadAuth(env);
   if (!(await credentialsValid(password, env, auth))) return html(renderLogin(config, message.passwordWrong, lang), 401, { "Cache-Control": "no-store" });
-  const token = await createSession(env.SESSION_SECRET);
+  const token = await createSession(env.SESSION_SECRET, Date.now(), auth?.sessionRevision || "");
   return redirect("/admin", { "Set-Cookie": sessionCookie(token, url.protocol === "https:") });
 }
 
@@ -133,16 +133,6 @@ async function handleLogout(request, url, lang) {
   if (request.method !== "POST") return methodNotAllowed("POST", lang);
   if (!sameOrigin(request)) return html(renderForbidden(lang), 403);
   return redirect("/", { "Set-Cookie": clearSessionCookie(url.protocol === "https:") });
-}
-
-async function adminSessionValid(request, env) {
-  const auth = await loadAuth(env);
-  return sessionValid(request, env.SESSION_SECRET, auth?.changedAt || 0);
-}
-
-async function loadAuth(env) {
-  const stored = await env.PROFILE_KV.get(AUTH_KEY, "json");
-  return stored && typeof stored === "object" ? stored : null;
 }
 
 function html(body, status = 200, extra = {}) {
