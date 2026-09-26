@@ -10,6 +10,8 @@
 
 聯絡圖標有網址時開啟連結；網址留空但有帳戶內容時，點擊即可複製（需 HTTPS 或 localhost）。選擇圖標會自動填入空白或預設名稱，保留自訂名稱。
 
+[線上示範](https://kk311.me/)：作者實際使用的首頁，含個人客製化，與預設部署可能略有不同。
+
 儲存期間繼續編輯的內容會保留，需再按儲存。瀏覽器禁止儲存偏好時，語言與外觀仍可切換，但不會記住選擇。修改密碼會撤銷舊登入；受 Workers KV 同步延遲影響，不保證所有節點立即生效。
 
 後台「網站設定」可啟用 App 內自動跳轉（預設關閉），倒數預設 5 秒，可設 1–10 秒。僅選擇已啟用、具有同平台 HTTPS 網址的聯繫方式，按列表順序取第一個；不使用網站列表或純複製項目。點擊提示可取消，同一分頁工作階段只提示一次，背景頁面暫停倒數。UA 識別涵蓋 Facebook、Messenger、Instagram、Threads、X、LINE、TikTok、Snapchat、LinkedIn、WhatsApp、Reddit、Telegram、Pinterest、KakaoTalk、Weibo 的明確標記；Telegram iPhone 版另以 App 注入的 `TelegramWebviewProxy.postEvent` 識別；UA 與專用標記都無法辨識時不跳轉。網址不會預先連線檢查有效性，也不保證開啟原生 App。UA 僅在訪客瀏覽器內處理。微信不自動跳轉：可選微信圖標、填寫帳戶並留空網址，供訪客點擊複製。其他平台可開啟個人頁或有效的聊天／邀請連結，不代表一定直接進入對話。
@@ -29,6 +31,8 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 
 連絡先アイコンは URL があればリンクを開き、URL が空欄でアカウントが入力されていればクリックでコピーします（HTTPS または localhost が必要です）。アイコンを選ぶと空欄または既定の表示名が自動入力され、手動で付けた名前は保持されます。
 
+[デモを見る](https://kk311.me/)：作者が実際に使っているサイトです。個人向けに調整しているため、初期設定とは一部異なります。
+
 保存中に行った編集は保持されますが、もう一度保存する必要があります。ブラウザーが設定の保存を拒否しても言語と外観は切り替えられますが、選択は記憶されません。パスワード変更で古いログインは無効になりますが、Workers KV の同期に時間がかかるため、全拠点で即時に反映されるとは限りません。
 
 管理画面のサイト設定でアプリ内の自動移動を有効にできます（初期設定はオフ）。待ち時間は初期値5秒、1〜10秒で設定できます。有効な連絡先のうち、同じサービスのHTTPS URLを持つ最初の項目を表示順で選びます。サイト一覧やコピー専用項目は対象外です。通知を押すとキャンセルでき、同じタブのセッションでは一度だけ表示し、バックグラウンドでは待ち時間を止めます。Facebook、Messenger、Instagram、Threads、X、LINE、TikTok、Snapchat、LinkedIn、WhatsApp、Reddit、Telegram、Pinterest、KakaoTalk、Weiboの明示的なUA識別子に対応します。iPhone版Telegramはアプリが注入する `TelegramWebviewProxy.postEvent` でも識別します。UAと専用マーカーのどちらでも判別できなければ移動しません。URLの疎通確認やネイティブアプリの起動保証は行いません。UAは訪問者のブラウザー内だけで処理します。WeChatは自動移動の対象外です。アイコンとアカウントを設定し、URLを空欄にすればクリックでコピーできます。他のサービスでも、プロフィールやチャット・招待リンクを開く機能であり、必ず会話画面へ直接移動するとは限りません。
@@ -47,6 +51,8 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 Contact Hub is a personal links and contact page for Cloudflare Workers, with a password-protected editor, editable avatar and links, and a visitor counter. You need Node.js 22+, npm, and a Cloudflare Workers account. It uses Workers, KV, and a SQLite-backed Durable Object. It can run on the Free plan, subject to Cloudflare's limits.
 
 Contact icons open their URL when provided. With no URL but an account value, clicking copies the account (requires HTTPS or localhost). Choosing an icon fills a blank or default name without replacing a custom name.
+
+[Live demo](https://kk311.me/): the author's own site, with personal customizations that may differ from a default deployment.
 
 Edits made while a save is pending are kept and need another save. If browser storage is blocked, language and theme controls still work without remembering your choice. Changing the password revokes old sessions, but Workers KV propagation delays mean this is not immediate at every location.
 
