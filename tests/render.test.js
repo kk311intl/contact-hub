@@ -24,7 +24,7 @@ test("keeps visitor language selection and contact icons above website cards", (
   assert.equal((html.match(/class="contact-icon-button/g) || []).length, 2);
   assert.equal((html.match(/class="site-card/g) || []).length, 1);
   assert.match(html, /data-tooltip="準備中"/);
-  assert.match(html, /data-admin-entry/);
+  assert.doesNotMatch(html, /data-admin-entry/);
 });
 
 test("renders custom contact icons and does not restore deleted contacts", () => {

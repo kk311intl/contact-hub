@@ -1,6 +1,6 @@
 export const UI = {
   "zh-TW": {
-    contact: "聯絡方式", websites: "網站", pending: "準備中", skip: "跳至主要內容", notFound: "找不到頁面", back: "返回首頁", language: "語言", appearance: "外觀", preferences: "網站外觀", credit: "由", creditEnd: "製作",
+    statistics: "訪問統計", statisticsUnavailable: "暫時無法取得訪客數", contact: "聯絡方式", websites: "網站", pending: "準備中", skip: "跳至主要內容", notFound: "找不到頁面", back: "返回首頁", language: "語言", appearance: "外觀", preferences: "網站外觀", credit: "由", creditEnd: "製作",
     admin: {
       autoRedirectApps: "支援 App：Facebook、Messenger、Instagram、Threads、X／Twitter、LINE、TikTok、Snapchat、LinkedIn、WhatsApp、Reddit、Telegram、Pinterest、KakaoTalk、Weibo。Telegram iPhone 版另以專用標記識別；版本未提供可辨識標記時不跳轉。微信僅提供帳戶複製，不自動跳轉。",
       autoRedirect: "App 內自動跳轉", autoRedirectDelay: "跳轉倒數（秒）", autoRedirectHelp: "預設關閉，倒數預設 5 秒（可設 1–10 秒）。僅在 UA 或 App 專用標記可識別的 App 中，開啟已啟用、且網址屬於同平台的聯繫方式；按列表順序選第一個。訪客可點擊提示取消。同一分頁工作階段只提示一次。",
@@ -14,7 +14,7 @@ export const UI = {
     icons: { wechat: "微信", weibo: "微博", globe: "網站", link: "連結", home: "首頁", blog: "文章", rss: "RSS", code: "程式碼", book: "書籍", briefcase: "工作", store: "商店", chain: "鏈上", email: "郵件", phone: "電話", message: "訊息", calendar: "日曆", map: "地圖", camera: "相機", cloud: "雲端" }
   },
   en: {
-    contact: "Contact", websites: "Websites", pending: "Coming soon", skip: "Skip to content", notFound: "Page not found", back: "Back home", language: "Language", appearance: "Appearance", preferences: "Site appearance", credit: "Powered by", creditEnd: "",
+    statistics: "Visit statistics", statisticsUnavailable: "Visitor count is temporarily unavailable", contact: "Contact", websites: "Websites", pending: "Coming soon", skip: "Skip to content", notFound: "Page not found", back: "Back home", language: "Language", appearance: "Appearance", preferences: "Site appearance", credit: "Powered by", creditEnd: "",
     admin: {
       autoRedirectApps: "Supported apps: Facebook, Messenger, Instagram, Threads, X/Twitter, LINE, TikTok, Snapchat, LinkedIn, WhatsApp, Reddit, Telegram, Pinterest, KakaoTalk, and Weibo. Telegram on iPhone also uses its app-specific marker; versions without recognizable markers do not redirect. WeChat supports account copying only, not auto-redirect.",
       autoRedirect: "Auto-redirect inside apps", autoRedirectDelay: "Redirect delay (seconds)", autoRedirectHelp: "Off by default; default delay is 5 seconds (1–10 allowed). Only recognized app UAs or app-specific markers trigger an enabled contact URL on the same platform, using the first match in list order. Visitors can click the notice to cancel. Shown once per tab session.",
@@ -28,7 +28,7 @@ export const UI = {
     icons: { wechat: "WeChat", weibo: "Weibo", globe: "Website", link: "Link", home: "Home", blog: "Article", rss: "RSS", code: "Code", book: "Book", briefcase: "Work", store: "Store", chain: "On-chain", email: "Email", phone: "Phone", message: "Message", calendar: "Calendar", map: "Map", camera: "Camera", cloud: "Cloud" }
   },
   ja: {
-    contact: "連絡先", websites: "ウェブサイト", pending: "準備中", skip: "本文へ移動", notFound: "ページが見つかりません", back: "ホームに戻る", language: "言語", appearance: "表示設定", preferences: "サイトの表示設定", credit: "制作：", creditEnd: "",
+    statistics: "アクセス統計", statisticsUnavailable: "訪問者数を取得できません", contact: "連絡先", websites: "ウェブサイト", pending: "準備中", skip: "本文へ移動", notFound: "ページが見つかりません", back: "ホームに戻る", language: "言語", appearance: "表示設定", preferences: "サイトの表示設定", credit: "制作：", creditEnd: "",
     admin: {
       autoRedirectApps: "対応アプリ：Facebook、Messenger、Instagram、Threads、X／Twitter、LINE、TikTok、Snapchat、LinkedIn、WhatsApp、Reddit、Telegram、Pinterest、KakaoTalk、Weibo。iPhone版Telegramは専用マーカーでも識別します。識別可能なマーカーのないバージョンでは移動しません。WeChatはアカウントのコピーのみ対応し、自動移動は行いません。",
       autoRedirect: "アプリ内で自動移動", autoRedirectDelay: "移動までの秒数", autoRedirectHelp: "初期設定はオフ、待ち時間は5秒（1〜10秒）。UAまたはアプリ固有のマーカーで識別でき、有効な同一サービスの連絡先URLがある場合のみ移動します。表示順で最初の候補を使います。通知を押すとキャンセルできます。同じタブのセッションでは一度だけ表示します。",

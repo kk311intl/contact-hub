@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker from "../src/index.js";
+import worker from "../src/site.js";
 import { adminLanguage, DEFAULT_CONFIG, validateConfig } from "../src/config.js";
 
 const phrases = {

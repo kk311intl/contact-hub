@@ -55,6 +55,8 @@ export async function loadAuth(env) {
 }
 
 export async function adminSessionValid(request, env) {
+  const token = readCookie(request.headers.get("Cookie") || "", COOKIE_NAME);
+  if (!/^v1\.\d+\.\d+\.[A-Za-z0-9_-]{43}$/.test(token || "")) return false;
   const auth = await loadAuth(env);
   return sessionValid(request, env.SESSION_SECRET, auth?.changedAt || 0, Date.now(), auth?.sessionRevision || "");
 }

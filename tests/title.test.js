@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker from "../src/index.js";
+import worker from "../src/site.js";
 import { createSession, sessionCookie } from "../src/auth.js";
 import { DEFAULT_CONFIG } from "../src/config.js";
 

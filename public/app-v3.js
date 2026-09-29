@@ -6,9 +6,9 @@ const copyMessages = {
   ja: { success: "アカウントをコピーしました", failure: "コピーできませんでした。手動でコピーしてください：" }
 };
 const translations = {
-  "zh-TW": { contact: "聯絡方式", websites: "網站", language: "語言", theme: "外觀", pending: "準備中", skip: "跳至主要內容", visitor: (n) => `第 ${n.toLocaleString("zh-TW")} 位來訪者` },
-  en: { contact: "Contact", websites: "Websites", language: "Language", theme: "Appearance", pending: "Coming soon", skip: "Skip to content", visitor: (n) => `Visitor #${n.toLocaleString("en")}` },
-  ja: { contact: "連絡先", websites: "ウェブサイト", language: "言語", theme: "外観", pending: "準備中", skip: "本文へ移動", visitor: (n) => `${n.toLocaleString("ja")}人目の訪問者` }
+  "zh-TW": { statistics: "訪問統計", statisticsUnavailable: "暫時無法取得訪客數", contact: "聯絡方式", websites: "網站", language: "語言", theme: "外觀", pending: "準備中", skip: "跳至主要內容", visitor: (n) => `第 ${n.toLocaleString("zh-TW")} 位來訪者` },
+  en: { statistics: "Visit statistics", statisticsUnavailable: "Visitor count is temporarily unavailable", contact: "Contact", websites: "Websites", language: "Language", theme: "Appearance", pending: "Coming soon", skip: "Skip to content", visitor: (n) => `Visitor #${n.toLocaleString("en")}` },
+  ja: { statistics: "アクセス統計", statisticsUnavailable: "訪問者数を取得できません", contact: "連絡先", websites: "ウェブサイト", language: "言語", theme: "外観", pending: "準備中", skip: "本文へ移動", visitor: (n) => `${n.toLocaleString("ja")}人目の訪問者` }
 };
 function readPreference(key) {
   try { return localStorage.getItem(key); } catch { return null; }
@@ -59,15 +59,6 @@ document.querySelector("[data-avatar]")?.addEventListener("error", (event) => {
   event.currentTarget.hidden = true;
 });
 
-let adminEntryClicks = 0;
-let adminEntryReset;
-document.querySelector("[data-admin-entry]")?.addEventListener("click", () => {
-  clearTimeout(adminEntryReset);
-  adminEntryClicks += 1;
-  if (adminEntryClicks === 5) location.assign("/admin");
-  else adminEntryReset = setTimeout(() => { adminEntryClicks = 0; }, 2000);
-});
-
 function detectBrowserLanguage() {
   for (const raw of navigator.languages?.length ? navigator.languages : [navigator.language]) {
     const code = String(raw).toLowerCase();
@@ -95,10 +86,10 @@ function applyLanguage(language, persist = false) {
   if (!config) return;
   const ui = translations[lang];
   const visitor = document.querySelector("[data-visitors]");
-  if (visitor?.dataset.count) {
-    const text = ui.visitor(Number(visitor.dataset.count));
+  if (visitor) {
+    const text = visitor.dataset.count ? ui.visitor(Number(visitor.dataset.count)) : ui.statisticsUnavailable;
     visitor.querySelector("[data-visitor-count]").textContent = text;
-    visitor.querySelector("summary").setAttribute("aria-label", text);
+    visitor.querySelector("summary").setAttribute("aria-label", visitor.dataset.count ? text : ui.statistics);
   }
   document.querySelector("[data-bio]").textContent = config.bio[lang] || config.bio.en;
   document.querySelector("[data-status]").textContent = config.status[lang] || config.status.en;

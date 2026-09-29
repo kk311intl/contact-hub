@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker from "../src/index.js";
+import worker from "../src/site.js";
 import { DEFAULT_CONFIG } from "../src/config.js";
+import { uiFor } from "../src/i18n.js";
 
 test("public page counts a browser once", async () => {
   let count = 0;
@@ -30,9 +31,12 @@ test("public page counts a browser once", async () => {
 });
 
 test("public footer reserves a collapsed visitor statistics control", async () => {
-  const page = await worker.fetch(new Request("https://example.com/"), { PROFILE_KV: { async get() { return DEFAULT_CONFIG; } } });
-  const html = await page.text();
-  assert.match(html, /<details class="footer-visitors" data-visitors hidden>/);
-  assert.match(html, /<summary aria-label=""/);
-  assert.match(html, /href="\/styles-v6\.css"/);
+  for (const lang of ['zh-TW', 'en', 'ja']) {
+    const page = await worker.fetch(new Request("https://example.com/", { headers: { 'Accept-Language': lang } }), { PROFILE_KV: { async get() { return DEFAULT_CONFIG; } } });
+    const html = await page.text();
+    assert.match(html, /<details class="footer-visitors" data-visitors>/);
+    assert.ok(html.includes(`<summary aria-label="${uiFor(lang).statistics}"`));
+    assert.ok(html.includes(uiFor(lang).statisticsUnavailable));
+    assert.match(html, /href="\/styles-v6\.css"/);
+  }
 });

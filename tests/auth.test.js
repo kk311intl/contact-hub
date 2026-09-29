@@ -1,8 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createPasswordRecord, createSession, credentialsValid, sessionCookie, sessionValid } from "../src/auth.js";
+import { adminSessionValid, createPasswordRecord, createSession, credentialsValid, sessionCookie, sessionValid } from "../src/auth.js";
 
 const env = { ADMIN_PASSWORD: "correct horse", SESSION_SECRET: "a-long-test-session-secret" };
+
+test("missing and malformed sessions do not read KV; valid-shaped sessions still check revocation", async () => {
+  let reads = 0;
+  const stored = { ...env, PROFILE_KV: { async get() { reads++; return { sessionRevision: 'revoked' }; } } };
+  for (const cookie of ['', 'contact_admin=invalid', 'contact_admin=v1.1.2.short']) {
+    assert.equal(await adminSessionValid(new Request('https://example.com/', { headers: { Cookie: cookie } }), stored), false);
+  }
+  assert.equal(reads, 0);
+  const cookie = sessionCookie(await createSession(env.SESSION_SECRET));
+  assert.equal(await adminSessionValid(new Request('https://example.com/', { headers: { Cookie: cookie } }), stored), false);
+  assert.equal(reads, 1);
+});
 
 test("accepts only the configured password", async () => {
   assert.equal(await credentialsValid("correct horse", env), true);
