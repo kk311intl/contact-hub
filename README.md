@@ -1,4 +1,4 @@
-# Contact Hub · v1.2.0
+# Contact Hub · v1.3.0
 
 [中文](#中文) · [日本語](#日本語) · [English](#english)
 
@@ -25,6 +25,8 @@
 
 後台可更改公開名稱、三語簡介與狀態、頭像、連結、網頁標題和頁尾連結；可直接開啟 `/admin/login`，或在首頁 5 秒內點擊頁尾統計圖示五次進入後台；頭像不再觸發。後台畫面在根網址顯示，各分頁分別記住模式；禁止瀏覽器儲存時仍可登入，但重新整理可能需再次開啟入口。頭像與資料會存在 KV 中，公開頁資料可被訪客讀取，請勿輸入私人資訊。自訂網域和防濫用 WAF 規則需自行在 Cloudflare 設定；程式不會代你啟用。免費額度耗盡可能導致請求失敗。Worker 版本回退不會還原 KV 或 Durable Object 資料，更新前請另外備份重要設定。原始碼以 GNU GPL v3（僅第 3 版，`GPL-3.0-only`，見 [LICENSE](LICENSE)）授權；內附 Kalam 字體依其 `public/fonts/Kalam-OFL.txt` 的 SIL OFL 1.1 授權。圖示來源及 Bootstrap Icons 的 MIT 聲明見 `public/icons.js`；Simple Icons 圖示依 CC0 提供。商標仍屬各權利人。
 
+後台「網站設定 → 設定備份」可匯出已儲存設定，包含頭像與隱藏連結，不含密碼、憑證或統計；匯入 JSON（最多 1 MiB）會先驗證並要求確認，只載入編輯器，按儲存才套用。未儲存編輯會暫存在此瀏覽器，重新登入可選擇恢復或捨棄；若網站設定已改變會提醒，不會自動覆寫。草稿未加密，共用裝置請捨棄不用的草稿；瀏覽器禁止儲存時會提示無法保留。連結可選「啟用／準備中／隱藏」；隱藏項目不出現在公開 HTML、公開資料或自動跳轉中，但仍保留於後台與備份。隱藏不能撤回先前已被他人取得的資料。
+
 ## 日本語
 
 > AI によるコード不要のデプロイ用プロンプト：この repository の README、`package.json`、`wrangler.example.jsonc` と実際のコードを読んで、私自身の Cloudflare アカウントに Contact Hub を導入する手順を案内してください。Node.js と Workers アカウントを確認し、この版で使う Worker、KV、SQLite Durable Object、静的アセット、ログイン保護されたアクセス統計、二つの Secret に合わせてインストール・設定・テスト・デプロイ・URL 確認を進めてください。本当に不足する値だけ質問してください。管理画面の言語は私が `zh-TW`、`ja`、`en` から選び、訪問者は三言語を切り替えられます。Cloudflare へのログイン、認可、パスワードや Secret の入力、本人確認などはアカウント所有者が行います。Secret を会話、端末出力、Git に載せないでください。既存の Worker やリソースを確認し、私の了承なく上書きしないでください。構成を勝手に変えず、実際に確認した作業だけを完了と報告し、問題があれば原因を調べてください。
@@ -48,6 +50,8 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 
 管理画面では名前、三言語の紹介文・ステータス、画像、リンク、ページタイトル、フッターリンクを編集できます。`/admin/login` を直接開くか、トップページのフッターにある統計アイコンを5秒以内に5回押すと管理画面に入れます。画像のクリックでは開きません。管理画面はルート URL に表示され、タブごとに表示モードを記憶します。ブラウザーの保存機能が無効でもログインできますが、再読み込み後は入口を開き直す場合があります。画像と設定は KV に保存され、公開ページの情報は訪問者にも読めるため、非公開情報を入力しないでください。独自ドメインや不正アクセス対策の WAF ルールは Cloudflare 側で別途設定してください。無料枠を超えるとリクエストが失敗する場合があります。Worker のバージョンを戻しても KV や Durable Object のデータは戻らないため、重要な設定は更新前に別途保存してください。コードは GNU GPL v3（バージョン 3 のみ、`GPL-3.0-only`、[LICENSE](LICENSE) 参照）、同梱の Kalam フォントは `public/fonts/Kalam-OFL.txt` の SIL OFL 1.1 です。アイコンの出典と Bootstrap Icons の MIT 表記は `public/icons.js` を参照してください。Simple Icons のアイコンは CC0、商標は各権利者に帰属します。
 
+管理画面の「サイト設定 → 設定のバックアップ」で保存済み設定を書き出せます。画像と非表示リンクを含み、パスワード・認証情報・統計は含みません。JSON（1 MiB 以下）の読み込みは検証と確認後に編集画面へ反映され、保存するまで公開サイトは変わりません。未保存の編集はこのブラウザーに下書きとして残り、再ログイン時に復元・破棄を選べます。サイト設定が変わっていれば警告し、自動では上書きしません。下書きは暗号化されないため、共用端末では不要なものを破棄してください。ブラウザーが保存を拒否した場合は通知します。リンクは「有効／準備中／非表示」を選択できます。非表示項目は公開 HTML・公開データ・自動移動から除外されますが、管理画面とバックアップには残ります。すでに取得されたデータまでは取り消せません。
+
 ## English
 
 > No-code deployment prompt for an AI coding agent: Read this repository's README, `package.json`, `wrangler.example.jsonc`, and the actual code, then guide me through deploying Contact Hub to my own Cloudflare account. Check that I have Node.js and a Workers account. Use this version's Worker, KV, SQLite Durable Object, static assets, sign-in-protected visit statistics, and two required secrets to install, configure, test, deploy, troubleshoot, and verify the URL. Ask only for missing values. Let me choose `zh-TW`, `ja`, or `en` as the fixed admin language; visitors must still be able to switch among all three. I, the account holder, must perform sign-in, authorization, secret entry, and any identity or physical-account steps. Never reveal secrets in chat, terminal output, or Git. Check for existing Worker names and resources before deployment; do not overwrite anything without my approval. Do not redesign the project, and report only steps you have actually verified.
@@ -70,5 +74,7 @@ Site settings can enable in-app auto-redirect (off by default), with a default 5
 4. Verify that your Worker name will not overwrite an existing service, then run `npx wrangler deploy --secrets-file .dev.vars` for the first deployment. Check the reported `workers.dev` public URL and `/admin/login`. Sign in with the configured password; you can change it in the editor. After a change, the new password stored in KV takes precedence over the initial secret. For later updates, use `npx wrangler deploy --keep-vars --strict` without re-uploading the local secrets. Investigate any remote configuration conflict before proceeding.
 
 The editor changes your public name, three-language bio and status, avatar, links, browser title, and footer link. Open `/admin/login` directly, or click the footer statistics icon five times within five seconds. The avatar no longer opens admin. Admin views use the root URL and remember their mode per tab. If browser storage is blocked, sign-in still works, but you may need to reopen admin after refreshing. The avatar and settings live in KV, and public-page data is readable by visitors, so do not enter private information. Configure a custom domain and abuse-mitigation WAF rules separately in Cloudflare; this code does not enable them. Requests may fail after Free-plan quotas are exhausted. Rolling back a Worker version does not restore KV or Durable Object data; back up important settings separately before updates. Code is licensed under GNU GPL version 3 only (`GPL-3.0-only`; see [LICENSE](LICENSE)); the bundled Kalam font remains under SIL OFL 1.1 in `public/fonts/Kalam-OFL.txt`. Icon sources and the Bootstrap Icons MIT notice are in `public/icons.js`; Simple Icons artwork is provided under CC0. Trademarks belong to their owners.
+
+Under Site settings → Settings backup, export saved settings including the avatar and hidden links, but no passwords, credentials or statistics. Importing JSON (up to 1 MiB) validates it and asks for confirmation; it fills the editor without publishing until you save. Unsaved edits stay as a draft in this browser, with restore/discard choices after signing in again and a warning if the site settings changed. Drafts are not encrypted; discard unused drafts on shared devices. Storage failures show a warning. Links can be Active, Coming soon or Hidden. Hidden items are excluded from public HTML, public data and auto-redirect, but remain in admin and backups. Hiding cannot retract data someone already obtained.
 
 Copyright (c) 2026 Contact Hub contributors.

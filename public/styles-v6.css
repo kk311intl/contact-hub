@@ -1,4 +1,8 @@
 @font-face { font-family:"Kalam Local"; src:url("/fonts/Kalam-Latin.woff2") format("woff2"); font-style:normal; font-weight:400; font-display:swap; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD }
+.backup-actions { display:flex; flex-wrap:wrap; gap:10px }
+.backup-actions a,.backup-actions button,.backup-card>button { padding:10px 14px; border:1px solid var(--border); border-radius:11px; background:var(--control); color:var(--text); text-decoration:none; cursor:pointer; font:inherit }
+.backup-card { margin-top:14px }.backup-card h3,.backup-card p,.draft-notice p { margin:0 }.backup-card p,.draft-notice p { color:var(--muted); font-size:.875rem }
+.draft-notice { margin-bottom:20px }.draft-notice[hidden] { display:none }.link-visibility { min-width:130px; max-width:50% }
 :root {
   color-scheme: light dark;
   --bg: #f5f5f7; --surface: #fff; --surface-hover: #fafafa; --text: #1d1d1f; --muted: #6e6e73;

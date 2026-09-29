@@ -1,4 +1,4 @@
-import { CONFIG_KEY, DEFAULT_CONFIG, MAX_BODY_BYTES, adminLanguage, detectLanguage, normalizeConfig, validateConfig } from "./config.js";
+import { CONFIG_KEY, DEFAULT_CONFIG, MAX_BODY_BYTES, adminLanguage, detectLanguage, normalizeConfig, publicConfig, validateConfig } from "./config.js";
 import { AUTH_KEY, adminSessionValid, clearSessionCookie, createPasswordRecord, createSession, credentialsValid, loadAuth, sameOrigin, sessionCookie } from "./auth.js";
 import { renderAdmin, renderForbidden, renderHome, renderLogin, renderNotFound } from "./render.js";
 import { uiFor } from "./i18n.js";
@@ -18,8 +18,9 @@ export default {
     const lang = adminLanguage(env.ADMIN_LANGUAGE);
     const message = uiFor(lang).api;
     try {
-      if (url.pathname === "/api/profile") return request.method === "GET" ? json(await loadConfig(env), 200, { "Cache-Control": "no-store" }) : methodNotAllowed("GET", lang);
+      if (url.pathname === "/api/profile") return request.method === "GET" ? json(publicConfig(await loadConfig(env)), 200, { "Cache-Control": "no-store" }) : methodNotAllowed("GET", lang);
       if (url.pathname === "/api/admin/config") return await handleAdminApi(request, env, url, lang);
+      if (url.pathname === "/api/admin/backup") return await handleBackup(request, env, lang);
       if (url.pathname === "/api/admin/password") return await handlePasswordApi(request, env, url, lang);
       if (url.pathname === "/admin/login") return await handleLogin(request, env, url, lang);
       if (url.pathname === "/admin/logout") return handleLogout(request, url, lang);
@@ -85,6 +86,47 @@ async function handleAdminApi(request, env, url, lang) {
 async function loadConfig(env) {
   const stored = await env.PROFILE_KV.get(CONFIG_KEY, "json");
   return stored ? normalizeConfig(stored) : normalizeConfig(DEFAULT_CONFIG);
+}
+
+async function handleBackup(request, env, lang) {
+  const message = uiFor(lang).api;
+  const headers = { "Cache-Control": "no-store" };
+  if (!(await adminSessionValid(request, env))) return json({ error: message.unauthorized }, 401, headers);
+  if (request.method === "GET") {
+    return json({ format: "contact-hub", version: 1, config: await loadConfig(env) }, 200, {
+      ...headers, "Content-Disposition": 'attachment; filename="contact-hub-settings.json"'
+    });
+  }
+  if (request.method !== "POST") return methodNotAllowed("GET, POST", lang);
+  if (!sameOrigin(request)) return json({ error: message.invalidOrigin }, 403, headers);
+  if (!(request.headers.get("Content-Type") || "").toLowerCase().startsWith("application/json")) return json({ error: message.jsonRequired }, 415, headers);
+  // Accept pretty-printed backups, but bound reads even without Content-Length.
+  const limit = 1024 * 1024;
+  if (Number(request.headers.get("Content-Length")) > limit) return json({ error: message.bodyTooLarge }, 413, headers);
+  const reader = request.body?.getReader();
+  const chunks = [];
+  let size = 0;
+  if (reader) {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > limit) { await reader.cancel(); return json({ error: message.bodyTooLarge }, 413, headers); }
+      chunks.push(value);
+    }
+  }
+  let backup;
+  try { backup = JSON.parse(await new Blob(chunks).text()); }
+  catch { return json({ error: message.invalidJson }, 400, headers); }
+  if (backup?.format !== "contact-hub" || backup.version !== 1 || !backup.config || typeof backup.config !== "object" || Array.isArray(backup.config)) return json({ error: message.invalidBackup }, 400, headers);
+  // Incomplete text can be recovered into the editor, never directly saved or rendered publicly.
+  const draft = new URL(request.url).searchParams.get('draft') === '1';
+  const errors = validateConfig(backup.config, lang, draft);
+  if (errors.length) return json({ error: message.validationFailed, details: errors }, 400, headers);
+  const config = normalizeConfig(backup.config);
+  if (new TextEncoder().encode(JSON.stringify(config)).byteLength > MAX_BODY_BYTES) return json({ error: message.bodyTooLarge }, 413, headers);
+  // Validation only: the existing Save action is the sole configuration write path.
+  return json(config, 200, headers);
 }
 
 async function handleLogin(request, env, url, lang) {

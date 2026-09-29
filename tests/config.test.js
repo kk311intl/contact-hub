@@ -20,7 +20,7 @@ test("converts legacy GitHub to a normal website and builds email links", () => 
   email.url = "";
   email.enabled = true;
   const config = normalizeConfig(input);
-  assert.deepEqual(config.links.find((link) => link.id === "github"), { id: "github", type: "link", icon: "github", label: "My Code", value: "", url: "https://github.com/example", enabled: true, order: 6 });
+  assert.deepEqual(config.links.find((link) => link.id === "github"), { id: "github", type: "link", icon: "github", label: "My Code", value: "", url: "https://github.com/example", enabled: true, hidden: false, order: 6 });
   assert.equal(config.links.find((link) => link.type === "email").url, "mailto:hello@example.com");
   assert.deepEqual(validateConfig(config), []);
 });
@@ -77,6 +77,6 @@ test("allows an enabled link without a URL so its switch can be saved", () => {
 test("does not silently discard Instagram contacts", () => {
   const link = { id: "instagram", type: "instagram", icon: "instagram", label: "Instagram", value: "", url: "https://instagram.com/example", enabled: true, order: 1 };
   const config = normalizeConfig({ ...DEFAULT_CONFIG, links: [link] });
-  assert.deepEqual(config.links, [link]);
+  assert.deepEqual(config.links, [{ ...link, hidden: false }]);
   assert.deepEqual(validateConfig(config), []);
 });

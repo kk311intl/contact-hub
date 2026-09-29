@@ -37,6 +37,9 @@ test("explicit app markers match only enabled contact URLs on their own platform
   config.links[0].enabled = false;
   assert.equal(redirectTarget(config, "Line/14", page), null);
   config.links[0].enabled = true;
+  config.links[0].hidden = true;
+  assert.equal(redirectTarget(config, "Line/14", page), null);
+  config.links[0].hidden = false;
   config.links[0].type = "link";
   assert.equal(redirectTarget(config, "Line/14", page), null);
   config.links[0].type = "contact";

@@ -16,9 +16,19 @@ const avatarFile = document.querySelector("[data-avatar-file]");
 const avatarInput = form.elements.avatar;
 const avatarPreview = document.querySelector("[data-avatar-preview]");
 let uploadedAvatar = config.avatar.startsWith("data:") ? config.avatar : "";
+const draftKey = 'contact-hub-draft-v1';
+const draftOwner = crypto.randomUUID();
+let draftTimer, pendingDraft = null, pendingDraftRaw = null, draftWarning = false, draftDiscarded = false;
+const draftNotice = document.querySelector('[data-draft-notice]');
+const settingsFile = document.querySelector('[data-settings-file]');
 
 renderLinks();
 renderFooterLinks();
+readDraft();
+document.querySelector('[data-settings-import]').addEventListener('click', () => settingsFile.click());
+settingsFile.addEventListener('change', importSettings);
+document.querySelector('[data-draft-restore]').addEventListener('click', restoreDraft);
+document.querySelectorAll('[data-draft-discard]').forEach(button => button.addEventListener('click', discardDraft));
 form.addEventListener("input", (event) => { if (!event.target.closest("[data-password-panel]")) markDirty(); });
 form.addEventListener("change", (event) => { if (!event.target.closest("[data-password-panel]") && event.target !== avatarFile) markDirty(); });
 saveButton.addEventListener("click", save);
@@ -31,7 +41,9 @@ document.querySelector("[data-add-link]").addEventListener("click", () => addLin
 document.querySelector("[data-add-contact]").addEventListener("click", () => addLink("contact"));
 document.querySelector("[data-add-email]").addEventListener("click", () => addLink("email"));
 document.querySelectorAll("[data-section-button]").forEach((button) => button.addEventListener("click", () => showSection(button.dataset.sectionButton)));
-window.addEventListener("beforeunload", (event) => { if (dirty) event.preventDefault(); });
+window.addEventListener("beforeunload", (event) => { persistDraft(); if (dirty) event.preventDefault(); });
+window.addEventListener('pagehide', persistDraft);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persistDraft(); });
 
 function showSection(name) {
   document.querySelectorAll("[data-section-button]").forEach((button) => button.classList.toggle("active", button.dataset.sectionButton === name));
@@ -79,11 +91,12 @@ function createLinkCard(link, groupLinks, index) {
       ? `<div class="link-primary-fields"><label class="field"><span>${ui.displayName}</span><input data-key="label" maxlength="80"></label><label class="field"><span>${ui.emailAddress}</span><input data-key="value" type="email" maxlength="200" placeholder="name@example.com"></label></div>${iconField}`
       : `<div class="link-primary-fields"><label class="field"><span>${ui.displayName}</span><input data-key="label" maxlength="80"></label><label class="field"><span>${ui.accountText}</span><input data-key="value" maxlength="200"></label></div>${iconField}<label class="field wide"><span>${ui.url}</span><input data-key="url" type="url" maxlength="2048" placeholder="https://"></label>`;
     const remove = `<button type="button" class="remove-link" data-remove aria-label="${ui.deleteItem}">${ui.delete}</button>`;
-    article.innerHTML = `<div class="link-editor-head"><div><strong></strong><small></small></div><label class="switch"><input type="checkbox"><span aria-hidden="true"></span><b>${ui.show}</b></label></div><div class="link-fields">${fields}</div><div class="order-actions"><span>${ui.order} ${index + 1}</span><div>${remove}<button type="button" data-move="up" aria-label="${ui.moveUp}">↑</button><button type="button" data-move="down" aria-label="${ui.moveDown}">↓</button></div></div>`;
+    article.innerHTML = `<div class="link-editor-head"><div><strong></strong><small></small></div><label class="field link-visibility"><span>${ui.visibility}</span><select data-visibility><option value="active">${ui.active}</option><option value="pending">${ui.pending}</option><option value="hidden">${ui.hidden}</option></select></label></div><div class="link-fields">${fields}</div><div class="order-actions"><span>${ui.order} ${index + 1}</span><div>${remove}<button type="button" data-move="up" aria-label="${ui.moveUp}">↑</button><button type="button" data-move="down" aria-label="${ui.moveDown}">↓</button></div></div>`;
     article.querySelector("strong").textContent = link.label;
     article.querySelector("small").textContent = typeName(link.type);
-    article.querySelector('input[type="checkbox"]').checked = link.enabled;
-    article.querySelector('input[type="checkbox"]').addEventListener("change", (event) => { link.enabled = event.currentTarget.checked; markDirty(); });
+    const visibility = article.querySelector('[data-visibility]');
+    visibility.value = link.hidden ? 'hidden' : link.enabled ? 'active' : 'pending';
+    visibility.addEventListener('change', () => { link.hidden = visibility.value === 'hidden'; link.enabled = visibility.value === 'active'; markDirty(); });
     article.querySelectorAll("[data-key]").forEach((input) => { input.autocomplete = "off"; input.value = link[input.dataset.key]; input.addEventListener("input", () => { link[input.dataset.key] = input.value; if (link.type === "email" && input.dataset.key === "value") link.url = input.value ? `mailto:${input.value}` : ""; article.querySelector("strong").textContent = link.label || ui.unnamed; }); });
     const picker = article.querySelector("[data-icon-picker]");
     const labelInput = article.querySelector('[data-key="label"]');
@@ -251,6 +264,108 @@ async function changePassword() {
 function markDirty() {
   collect();
   dirty = JSON.stringify(config) !== saved;
+  draftDiscarded = false;
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(persistDraft, 300);
+}
+
+function readDraft() {
+  try {
+    pendingDraftRaw = localStorage.getItem(draftKey);
+    if (!pendingDraftRaw) return;
+    pendingDraft = JSON.parse(pendingDraftRaw);
+    if (pendingDraft?.format !== 'contact-hub' || pendingDraft.version !== 1 || !pendingDraft.config || typeof pendingDraft.base !== 'string') throw new Error('Invalid draft');
+    if (JSON.stringify(pendingDraft.config) === saved) {
+      localStorage.removeItem(draftKey);
+      pendingDraftRaw = pendingDraft = null;
+      return;
+    }
+    draftNotice.hidden = false;
+    draftNotice.querySelector('[data-draft-message]').textContent = ui.draftFound;
+    document.querySelector('[data-draft-restore]').disabled = false;
+  } catch {
+    if (pendingDraftRaw) {
+      draftNotice.hidden = false;
+      draftNotice.querySelector('[data-draft-message]').textContent = ui.draftInvalid;
+      document.querySelector('[data-draft-restore]').disabled = true;
+    } else warnDraft();
+  }
+}
+
+function warnDraft() {
+  if (!draftWarning) { showToast(ui.draftUnavailable, true); draftWarning = true; }
+}
+
+function persistDraft() {
+  clearTimeout(draftTimer);
+  if (pendingDraftRaw || draftDiscarded) return; // Do not overwrite unresolved or discarded drafts.
+  try {
+    const existing = JSON.parse(localStorage.getItem(draftKey) || 'null');
+    if (dirty && existing && existing.owner !== draftOwner) { readDraft(); return; }
+    if (dirty) localStorage.setItem(draftKey, JSON.stringify({ format: 'contact-hub', version: 1, owner: draftOwner, base: saved, config }));
+    else {
+      if (existing?.owner === draftOwner) localStorage.removeItem(draftKey);
+    }
+  } catch { warnDraft(); }
+}
+
+async function validateBackup(text, draft = false) {
+  const response = await fetch('/api/admin/backup' + (draft ? '?draft=1' : ''), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: text });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.details?.join('; ') || result.error || ui.importFailed);
+  return result;
+}
+
+function fillEditor(next) {
+  config = next;
+  uploadedAvatar = config.avatar.startsWith('data:') ? config.avatar : '';
+  for (const key of ['name', 'avatar']) form.elements[key].value = key === 'avatar' && uploadedAvatar ? '' : config[key];
+  for (const key of ['siteTitle', 'canonicalUrl', 'autoRedirectSeconds']) form.elements[key].value = config.settings[key];
+  form.elements.autoRedirectEnabled.checked = config.settings.autoRedirectEnabled;
+  for (const field of ['bio', 'status']) for (const lang of ['zh-TW', 'en', 'ja']) form.elements[`${field}.${lang}`].value = config[field][lang];
+  updateAvatarPreview(/^(https?:\/\/|data:image\/(?:png|jpeg|webp);base64,)/i.test(config.avatar) ? config.avatar : '');
+  renderLinks(); renderFooterLinks(); markDirty(); showSection('profile');
+}
+
+async function importSettings() {
+  const file = settingsFile.files?.[0];
+  if (!file) return;
+  try {
+    if (file.size > 1024 * 1024) throw new Error(ui.importFailed);
+    const next = await validateBackup(await file.text());
+    if (!confirm(ui.importConfirm)) return;
+    fillEditor(next);
+    showToast(ui.imported);
+  } catch (error) { showToast(error.message || ui.importFailed, true); }
+  finally { settingsFile.value = ''; }
+}
+
+async function restoreDraft() {
+  try {
+    if (localStorage.getItem(draftKey) !== pendingDraftRaw) throw new Error(ui.draftChanged);
+    const next = await validateBackup(JSON.stringify({ format: 'contact-hub', version: 1, config: pendingDraft.config }), true);
+    if (!confirm(pendingDraft.base === saved ? ui.draftConfirm : ui.draftConflict)) return;
+    if (localStorage.getItem(draftKey) !== pendingDraftRaw) throw new Error(ui.draftChanged);
+    localStorage.removeItem(draftKey);
+    pendingDraftRaw = pendingDraft = null;
+    draftNotice.hidden = true;
+    fillEditor(next);
+    persistDraft();
+    showToast(ui.draftRestored);
+  } catch (error) { showToast(error.message || ui.draftInvalid, true); }
+}
+
+function discardDraft() {
+  if (!confirm(ui.discardConfirm)) return;
+  try {
+    if (pendingDraftRaw && localStorage.getItem(draftKey) !== pendingDraftRaw) throw new Error(ui.draftChanged);
+    clearTimeout(draftTimer);
+    localStorage.removeItem(draftKey);
+    draftDiscarded = true;
+    pendingDraftRaw = pendingDraft = null;
+    draftNotice.hidden = true;
+    showToast(ui.draftDiscarded);
+  } catch (error) { showToast(error.message || ui.draftUnavailable, true); }
 }
 
 async function save() {

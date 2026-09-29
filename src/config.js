@@ -92,6 +92,7 @@ function normalizeLink(link) {
     value: String(link.value ?? ""),
     url: String(link.url ?? ""),
     enabled: Boolean(link.enabled),
+    hidden: link.hidden ?? false,
     order: Number.isFinite(Number(link.order)) ? Number(link.order) : 0
   };
   if (normalized.type === "email") {
@@ -113,15 +114,15 @@ function normalizeLinks(input, defaults) {
   return input.map(normalizeLink).filter(Boolean);
 }
 
-export function validateConfig(config, language = "en") {
+export function validateConfig(config, language = "en", draft = false) {
   const v = VALIDATION[adminLanguage(language)];
   const errors = [];
   const text = (value, path, max, required = true) => {
     if (typeof value !== "string" || (required && !value.trim()) || value.length > max) errors.push(`${path} ${v.length(required, max)}`);
   };
-  text(config?.name, v.fields.name, 80);
+  text(config?.name, v.fields.name, 80, !draft);
   text(config?.avatar, v.fields.avatar, 360000, false);
-  if (config?.avatar && !isValidAvatar(config.avatar)) errors.push(`${v.fields.avatar} ${v.avatar}`);
+  if (!draft && config?.avatar && !isValidAvatar(config.avatar)) errors.push(`${v.fields.avatar} ${v.avatar}`);
   for (const lang of LANGUAGES) {
     text(config?.bio?.[lang], `${v.fields.bio} ${lang}`, 1000, false);
     text(config?.status?.[lang], `${v.fields.status} ${lang}`, 80, false);
@@ -135,24 +136,25 @@ export function validateConfig(config, language = "en") {
       text(link?.id, `${base}.id`, 40);
       text(link?.type, `${base}.type`, 40);
       text(link?.icon, `${base}.icon`, 40, false);
-      text(link?.label, `${base}.label`, 80);
+      text(link?.label, `${base}.label`, 80, !draft);
       text(link?.value, `${base}.value`, 200, false);
       text(link?.url, `${base}.url`, 2048, false);
-      if (link?.type === "email" && link?.value && !isEmail(link.value)) errors.push(`${base}.value ${v.email}`);
+      if (!draft && link?.type === "email" && link?.value && !isEmail(link.value)) errors.push(`${base}.value ${v.email}`);
       if (typeof link?.enabled !== "boolean") errors.push(`${base}.enabled ${v.boolean}`);
+      if (link?.hidden !== undefined && typeof link.hidden !== "boolean") errors.push(`${base}.hidden ${v.boolean}`);
       if (!Number.isInteger(link?.order) || link.order < 0 || link.order > 999) errors.push(`${base}.order ${v.order}`);
-      if (link?.url && !isAllowedLink(link.url)) errors.push(`${base}.url ${v.linkUrl}`);
+      if (!draft && link?.url && !isAllowedLink(link.url)) errors.push(`${base}.url ${v.linkUrl}`);
       if (ids.has(link?.id)) errors.push(`${base}.id ${v.duplicate}`);
       ids.add(link?.id);
     });
   }
   text(config?.settings?.siteTitle, v.fields.siteTitle, 120, false);
   if (typeof config?.settings?.autoRedirectEnabled !== "boolean") errors.push(`autoRedirectEnabled ${v.boolean}`);
-  if (!Number.isInteger(config?.settings?.autoRedirectSeconds) || config.settings.autoRedirectSeconds < 1 || config.settings.autoRedirectSeconds > 10) {
+  if (!draft && (!Number.isInteger(config?.settings?.autoRedirectSeconds) || config.settings.autoRedirectSeconds < 1 || config.settings.autoRedirectSeconds > 10)) {
     errors.push(({ "zh-TW": "自動跳轉時間必須是 1–10 秒的整數", en: "Auto-redirect delay must be an integer from 1 to 10 seconds", ja: "自動移動までの時間は1〜10秒の整数にしてください" })[adminLanguage(language)]);
   }
   text(config?.settings?.canonicalUrl, v.fields.canonical, 2048, false);
-  if (config?.settings?.canonicalUrl && !isHttpUrl(config.settings.canonicalUrl)) errors.push(`${v.fields.canonical} ${v.canonical}`);
+  if (!draft && config?.settings?.canonicalUrl && !isHttpUrl(config.settings.canonicalUrl)) errors.push(`${v.fields.canonical} ${v.canonical}`);
   if (!Array.isArray(config?.settings?.footerLinks) || config.settings.footerLinks.length > 1) {
     errors.push(`${v.fields.footer} ${v.maxFooter}`);
   } else {
@@ -162,13 +164,17 @@ export function validateConfig(config, language = "en") {
       text(link?.id, `${base}.id`, 40);
       text(link?.label, `${base}.label`, 40, false);
       text(link?.url, `${base}.url`, 2048, false);
-      if (link?.url && !isHttpUrl(link.url)) errors.push(`${base}.url ${v.footerUrl}`);
+      if (!draft && link?.url && !isHttpUrl(link.url)) errors.push(`${base}.url ${v.footerUrl}`);
       if (!Number.isInteger(link?.order) || link.order < 0 || link.order > 999) errors.push(`${base}.order ${v.order}`);
       if (ids.has(link?.id)) errors.push(`${base}.id ${v.duplicate}`);
       ids.add(link?.id);
     });
   }
   return errors;
+}
+
+export function publicConfig(config) {
+  return { ...config, links: config.links.filter(link => !link.hidden) };
 }
 
 export function detectLanguage(header = "") {

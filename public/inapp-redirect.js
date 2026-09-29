@@ -28,7 +28,7 @@ export function redirectTarget(config, ua, currentUrl, telegramBridge = false) {
   const app = APPS.find(([, pattern]) => pattern.test(ua)) || (telegramBridge ? APPS.find(([name]) => name === "Telegram") : null);
   if (!app) return null;
   for (const link of [...config.links].sort((a, b) => a.order - b.order)) {
-    if (!link.enabled || ["website", "link", "email"].includes(link.type)) continue;
+    if (link.hidden || !link.enabled || ["website", "link", "email"].includes(link.type)) continue;
     try {
       const url = new URL(link.url);
       if (url.protocol !== "https:" || url.username || url.password || url.origin === new URL(currentUrl).origin) continue;
