@@ -4,6 +4,15 @@ import { DEFAULT_CONFIG, normalizeConfig } from "../src/config.js";
 import { renderAdmin, renderHome, renderLogin } from "../src/render.js";
 import { ICON_GROUPS, iconSvg } from "../public/icons.js";
 
+test("draft discard appears only in the recovery notice, not settings", () => {
+  for (const lang of ["zh-TW", "ja", "en"]) {
+    const html = renderAdmin(normalizeConfig(DEFAULT_CONFIG), lang);
+    assert.equal((html.match(/data-draft-discard/g) || []).length, 1);
+    assert.match(html, /data-draft-notice hidden>[\s\S]*?data-draft-discard/);
+    assert.doesNotMatch(html.slice(html.indexOf('class="form-card backup-card"')), /data-draft-discard/);
+  }
+});
+
 test("icon picker separates generic and brand icons without losing choices", () => {
   const generic = ICON_GROUPS.generic.map(([value]) => value);
   const brands = ICON_GROUPS.brands.map(([value]) => value);

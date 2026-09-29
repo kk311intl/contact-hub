@@ -1,4 +1,4 @@
-# Contact Hub · v1.3.0
+# Contact Hub · v1.3.1
 
 [中文](#中文) · [日本語](#日本語) · [English](#english)
 
