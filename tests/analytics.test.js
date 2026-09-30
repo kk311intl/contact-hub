@@ -159,6 +159,25 @@ test("dashboard escapes source labels and displays empty data without browser sc
   assert.match(html, /data-stats-days="30"/);
 });
 
+test("daily chart keeps UTC order, missing records, zeros and caps distinct in all languages", () => {
+  const report = { day: '2026-10-01', days: 7, limit: DAILY_LIMIT, buckets: [], daily: [
+    { day: '2026-10-01', views: 0, bots: 0, capped: 0 },
+    { day: '2026-09-29', views: 4800, bots: 200, capped: 1 }
+  ] };
+  for (const lang of ['zh-TW', 'en', 'ja']) {
+    const html = dashboard(report, lang), ui = statsFor(lang);
+    assert.equal((html.match(/data-stats-day=/g) || []).length, 7);
+    assert.ok(html.indexOf('2026-09-25 UTC') < html.indexOf('2026-10-01 UTC'));
+    assert.ok(html.includes(`2026-09-30 UTC · ${ui.noRecord}`));
+    assert.ok(html.includes(`2026-10-01 UTC · ${ui.views}: 0 · ${ui.bot}: 0`));
+    assert.match(html, /stats-chart-cap/);
+    assert.doesNotMatch(html, /NaN|Infinity/);
+    assert.ok(html.includes(ui.chartHint));
+    for (const days of [1, 30]) assert.equal((dashboard({ ...report, days, daily: [] }, lang).match(/data-stats-day=/g) || []).length, days);
+    assert.doesNotMatch(dashboard({ ...report, daily: report.daily.slice(0, 1) }, lang), /NaN|Infinity/);
+  }
+});
+
 test("statistics tab loads on demand without navigating or replacing the editor", async () => {
   const events = {}, calls = [];
   const content = { setAttribute() {}, removeAttribute() {} };

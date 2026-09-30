@@ -1,4 +1,4 @@
-# Contact Hub · v1.3.1
+# Contact Hub · v1.4.0
 
 [中文](#中文) · [日本語](#日本語) · [English](#english)
 
@@ -13,6 +13,8 @@
 [線上示範](https://kk311.me/)：作者實際使用的首頁，含個人客製化，與預設部署可能略有不同。
 
 登入後可查看國家／地區、設備、系統、瀏覽器、App 及來源網域統計，介面跟隨 `ADMIN_LANGUAGE`，報表不對訪客公開。按 UTC 保存 30 天，可查今日／7 天／30 天；每日最多記錄 5,000 次首頁請求（含已知機器人），來源網域每日最多 50 種，其餘合併。不保存原始 IP、完整 UA 或來源路徑／查詢；分類是推測，訪問次數不是獨立訪客數。達上限或寫入異常會提示資料可能不完整，且不自動輪詢；這些限制不保證不會耗盡免費額度。重新整理後台時，用於恢復分頁的初始首頁請求仍算一次訪問。
+
+每日概況以雙柱狀圖顯示訪問與機器人請求；懸停、點擊或鍵盤選擇可查看數值，30 天可橫向滑動，未有記錄的日期不視為零。
 
 儲存期間繼續編輯的內容會保留，需再按儲存。瀏覽器禁止儲存偏好時，語言與外觀仍可切換，但不會記住選擇。修改密碼會撤銷舊登入；受 Workers KV 同步延遲影響，不保證所有節點立即生效。
 
@@ -39,6 +41,8 @@ Contact Hub は Cloudflare Workers で動く個人用リンク・連絡先ペー
 
 ログイン後、国・地域、端末、OS、ブラウザー、アプリ、参照元ドメイン別の統計を確認できます。表示言語は `ADMIN_LANGUAGE` に従い、訪問者には公開しません。UTC 基準で30日間保存し、今日・7日間・30日間を選べます。記録は既知のボットを含め1日5,000件、参照元ドメインは1日50種類までで、残りはまとめます。元の IP、完全な UA、参照元のパスやクエリは保存しません。分類は推定で、アクセス回数は訪問者数とは異なります。上限到達や書き込み失敗は警告を表示し、自動ポーリングは行いません。無料枠を超えない保証ではありません。管理画面の再読み込み時にタブを復元する最初のトップページリクエストも1回に数えます。
 
+日別の概要はアクセスとボットの棒グラフで表示します。カーソル・タップ・キーボードで数値を確認でき、30日表示は横スクロールに対応します。記録のない日はゼロと区別します。
+
 保存中に行った編集は保持されますが、もう一度保存する必要があります。ブラウザーが設定の保存を拒否しても言語と外観は切り替えられますが、選択は記憶されません。パスワード変更で古いログインは無効になりますが、Workers KV の同期に時間がかかるため、全拠点で即時に反映されるとは限りません。
 
 管理画面のサイト設定でアプリ内の自動移動を有効にできます（初期設定はオフ）。待ち時間は初期値5秒、1〜10秒で設定できます。有効な連絡先のうち、同じサービスのHTTPS URLを持つ最初の項目を表示順で選びます。サイト一覧やコピー専用項目は対象外です。通知を押すとキャンセルでき、同じタブのセッションでは一度だけ表示し、バックグラウンドでは待ち時間を止めます。Facebook、Messenger、Instagram、Threads、X、LINE、TikTok、Snapchat、LinkedIn、WhatsApp、Reddit、Telegram、Pinterest、KakaoTalk、Weiboの明示的なUA識別子に対応します。iPhone版Telegramはアプリが注入する `TelegramWebviewProxy.postEvent` でも識別します。UAと専用マーカーのどちらでも判別できなければ移動しません。URLの疎通確認やネイティブアプリの起動保証は行いません。自動移動の UA 判定は訪問者のブラウザー内で行います。サーバーでも前述の分類統計に UA を使いますが、完全な UA は保存しません。WeChatは自動移動の対象外です。アイコンとアカウントを設定し、URLを空欄にすればクリックでコピーできます。他のサービスでも、プロフィールやチャット・招待リンクを開く機能であり、必ず会話画面へ直接移動するとは限りません。
@@ -63,6 +67,8 @@ Contact icons open their URL when provided. With no URL but an account value, cl
 [Live demo](https://kk311.me/): the author's own site, with personal customizations that may differ from a default deployment.
 
 After sign-in, statistics group visits by country/region, device, OS, browser, app and referrer domain, using `ADMIN_LANGUAGE`. Reports are not public. Data is retained for 30 UTC days, with today/7-day/30-day views. Recording is capped at 5,000 homepage requests per day, including known bots; up to 50 referrer domains per day are kept separately and the rest grouped. Raw IPs, full UAs and referrer paths/queries are not stored. Categories are estimates and page views are not unique visitors. Limit and write-failure warnings flag potentially incomplete data; there is no automatic polling. These limits do not guarantee staying within free quotas. Refreshing admin still counts the initial homepage request used to restore the tab.
+
+The daily chart separates visits and bot requests. Hover, tap or focus a date for values; the 30-day view scrolls horizontally. Missing records are distinguished from zero.
 
 Edits made while a save is pending are kept and need another save. If browser storage is blocked, language and theme controls still work without remembering your choice. Changing the password revokes old sessions, but Workers KV propagation delays mean this is not immediate at every location.
 
