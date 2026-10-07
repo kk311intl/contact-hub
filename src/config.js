@@ -118,6 +118,7 @@ export function validateConfig(config, language = "en", draft = false) {
   const v = VALIDATION[adminLanguage(language)];
   const errors = [];
   const text = (value, path, max, required = true) => {
+    if (value === undefined && !required) return;
     if (typeof value !== "string" || (required && !value.trim()) || value.length > max) errors.push(`${path} ${v.length(required, max)}`);
   };
   text(config?.name, v.fields.name, 80, !draft);

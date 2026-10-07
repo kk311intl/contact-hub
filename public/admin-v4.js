@@ -41,6 +41,16 @@ document.querySelector("[data-add-link]").addEventListener("click", () => addLin
 document.querySelector("[data-add-contact]").addEventListener("click", () => addLink("contact"));
 document.querySelector("[data-add-email]").addEventListener("click", () => addLink("email"));
 document.querySelectorAll("[data-section-button]").forEach((button) => button.addEventListener("click", () => showSection(button.dataset.sectionButton)));
+document.addEventListener('click', event => {
+  document.querySelectorAll('[data-icon-selector][open]').forEach(selector => {
+    if (!selector.contains(event.target)) selector.open = false;
+  });
+});
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  const selector = document.querySelector('[data-icon-selector][open]');
+  if (selector) { selector.open = false; selector.querySelector('summary').focus(); }
+});
 window.addEventListener("beforeunload", (event) => { persistDraft(); if (dirty) event.preventDefault(); });
 window.addEventListener('pagehide', persistDraft);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persistDraft(); });
@@ -86,7 +96,7 @@ function createLinkCard(link, groupLinks, index) {
     const article = document.createElement("article");
     article.className = "link-editor-card";
     article.dataset.linkId = link.id;
-    const iconField = `<fieldset class="icon-field"><legend>${ui.icon}</legend><div class="icon-picker" data-icon-picker></div></fieldset>`;
+    const iconField = `<fieldset class="icon-field"><legend>${ui.icon}</legend><details class="icon-selector" data-icon-selector><summary>${iconSvg(link.icon || link.type)}<span data-icon-label></span></summary><div class="icon-picker" data-icon-picker></div></details></fieldset>`;
     const fields = link.type === "email"
       ? `<div class="link-primary-fields"><label class="field"><span>${ui.displayName}</span><input data-key="label" maxlength="80"></label><label class="field"><span>${ui.emailAddress}</span><input data-key="value" type="email" maxlength="200" placeholder="name@example.com"></label></div>${iconField}`
       : `<div class="link-primary-fields"><label class="field"><span>${ui.displayName}</span><input data-key="label" maxlength="80"></label><label class="field"><span>${ui.accountText}</span><input data-key="value" maxlength="200"></label></div>${iconField}<label class="field wide"><span>${ui.url}</span><input data-key="url" type="url" maxlength="2048" placeholder="https://"></label>`;
@@ -100,7 +110,9 @@ function createLinkCard(link, groupLinks, index) {
     article.querySelectorAll("[data-key]").forEach((input) => { input.autocomplete = "off"; input.value = link[input.dataset.key]; input.addEventListener("input", () => { link[input.dataset.key] = input.value; if (link.type === "email" && input.dataset.key === "value") link.url = input.value ? `mailto:${input.value}` : ""; article.querySelector("strong").textContent = link.label || ui.unnamed; }); });
     const picker = article.querySelector("[data-icon-picker]");
     const labelInput = article.querySelector('[data-key="label"]');
-    const currentIconLabel = iconLabels[link.icon] || Object.values(ICON_GROUPS).flat().find(([value]) => value === link.icon)?.[1];
+    const currentIconLabel = Object.hasOwn(iconLabels, link.icon) ? iconLabels[link.icon] : Object.values(ICON_GROUPS).flat().find(([value]) => value === link.icon)?.[1];
+    const selector = article.querySelector('[data-icon-selector]');
+    selector.querySelector('[data-icon-label]').textContent = currentIconLabel || ui.icon;
     let autoLabel = !link.label.trim() || link.label === ui.newLink || link.label === currentIconLabel;
     labelInput.addEventListener("input", () => { autoLabel = !labelInput.value.trim(); });
     if (picker) {
@@ -128,7 +140,11 @@ function createLinkCard(link, groupLinks, index) {
               article.querySelector("strong").textContent = link.label;
             }
             link.icon = value;
+            selector.querySelector('summary svg').replaceWith(button.querySelector('svg').cloneNode(true));
+            selector.querySelector('[data-icon-label]').textContent = button.title;
             picker.querySelectorAll(".icon-choice").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
+            selector.open = false;
+            selector.querySelector('summary').focus();
             markDirty();
           });
           grid.append(button);
@@ -143,7 +159,8 @@ function createLinkCard(link, groupLinks, index) {
 }
 
 function typeName(type) {
-  return ({ website: ui.siteList, email: ui.emailAddress, github: "GitHub", telegram: "Telegram", line: "LINE", x: "X", link: ui.customUrl })[type] || ui.contactList;
+  const names = { website: ui.siteList, email: ui.emailAddress, github: "GitHub", telegram: "Telegram", line: "LINE", x: "X", link: ui.customUrl };
+  return Object.hasOwn(names, type) ? names[type] : ui.contactList;
 }
 
 function addLink(type = "link") {
@@ -231,6 +248,7 @@ async function resizeImage(file) {
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = size;
     const context = canvas.getContext("2d");
+    if (!context) throw new Error(ui.imageFailed);
     const side = Math.min(image.naturalWidth, image.naturalHeight);
     context.drawImage(image, (image.naturalWidth - side) / 2, (image.naturalHeight - side) / 2, side, side, 0, 0, size, size);
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", quality));
@@ -252,9 +270,7 @@ async function changePassword() {
   button.disabled = true;
   button.textContent = ui.updating;
   try {
-    const response = await fetch("/api/admin/password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ currentPassword: current.value, newPassword: next.value }) });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || ui.passwordUpdateFailed);
+    await requestJson("/api/admin/password", "POST", JSON.stringify({ currentPassword: current.value, newPassword: next.value }), ui.passwordUpdateFailed);
     current.value = next.value = confirm.value = "";
     showToast(ui.passwordUpdated);
     setTimeout(() => { location.href = "/admin/login"; }, 900);
@@ -310,10 +326,7 @@ function persistDraft() {
 }
 
 async function validateBackup(text, draft = false) {
-  const response = await fetch('/api/admin/backup' + (draft ? '?draft=1' : ''), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: text });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.details?.join('; ') || result.error || ui.importFailed);
-  return result;
+  return requestJson('/api/admin/backup' + (draft ? '?draft=1' : ''), 'POST', text, ui.importFailed);
 }
 
 function fillEditor(next) {
@@ -368,15 +381,24 @@ function discardDraft() {
   } catch (error) { showToast(error.message || ui.draftUnavailable, true); }
 }
 
+async function requestJson(path, method, body, failure) {
+  let response, result;
+  try {
+    response = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body });
+    result = await response.json();
+  } catch { throw new Error(failure); }
+  if (!result || typeof result !== 'object' || Array.isArray(result)) throw new Error(failure);
+  if (!response.ok) throw new Error(Array.isArray(result.details) && result.details.length ? result.details.join('; ') : typeof result.error === 'string' ? result.error : failure);
+  return result;
+}
+
 async function save() {
   if (saveButton.disabled) return;
   collect();
   const submitted = JSON.stringify(config);
   saveButton.disabled = true;
   try {
-    const response = await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: submitted });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.details?.join("; ") || result.error || ui.saveFailed);
+    const result = await requestJson("/api/admin/config", "PUT", submitted, ui.saveFailed);
     collect();
     const changedWhileSaving = JSON.stringify(config) !== submitted;
     saved = JSON.stringify(result);

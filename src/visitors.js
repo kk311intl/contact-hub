@@ -4,6 +4,7 @@ const encoder = new TextEncoder();
 
 export class VisitorCounter {
   constructor(ctx) {
+    this.storage = ctx.storage;
     this.sql = ctx.storage.sql;
     this.sql.exec("CREATE TABLE IF NOT EXISTS totals (id INTEGER PRIMARY KEY, visitors INTEGER NOT NULL, day TEXT NOT NULL, daily INTEGER NOT NULL)");
     this.sql.exec("INSERT OR IGNORE INTO totals (id, visitors, day, daily) VALUES (1, 0, '', 0)");
@@ -12,7 +13,7 @@ export class VisitorCounter {
 
   async fetch(request) {
     const { existing, ip, day } = await request.json();
-    return Response.json(this.visit(existing, ip, day));
+    return Response.json(this.storage.transactionSync(() => this.visit(existing, ip, day)));
   }
 
   visit(existing, ip, day) {

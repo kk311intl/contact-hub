@@ -17,7 +17,7 @@ function writePreference(key, value) {
   try { localStorage.setItem(key, value); } catch { /* Preferences still apply to this page. */ }
 }
 const storedLanguage = readPreference("contact-language");
-const currentLanguage = storedLanguage && translations[storedLanguage] ? storedLanguage : detectBrowserLanguage();
+const currentLanguage = storedLanguage && Object.hasOwn(translations, storedLanguage) ? storedLanguage : detectBrowserLanguage();
 const colorScheme = matchMedia("(prefers-color-scheme: dark)");
 const storedTheme = readPreference("contact-theme");
 let currentTheme = ["light", "dark"].includes(storedTheme) ? storedTheme : "auto";
@@ -79,7 +79,7 @@ function applyTheme(theme, persist = false) {
 }
 
 function applyLanguage(language, persist = false) {
-  const lang = translations[language] ? language : "en";
+  const lang = Object.hasOwn(translations, language) ? language : "en";
   document.documentElement.lang = lang === "zh-TW" ? "zh-Hant" : lang;
   if (persist) writePreference("contact-language", lang);
   document.querySelectorAll("[data-language]").forEach((select) => { select.value = lang; select.setAttribute("aria-label", translations[lang].language); });

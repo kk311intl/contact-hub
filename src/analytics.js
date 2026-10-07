@@ -5,10 +5,11 @@ export const DIMENSIONS = { country: "國家／地區", device: "設備", os: "�
 
 const TEXT = {
   "zh-TW": {
-    visits: "訪問", noRecord: "未有記錄", chartHint: "懸停、點擊或以鍵盤選擇日期查看數值；橫向滑動可查看更多日期。", scale: "刻度上限",
+    intro: "查看訪問趨勢與來源分類。", details: "統計方式與限制", summaryNote: "以 UTC 換日；訪問次數不是獨立訪客數。",
+    visits: "訪問", noRecord: "未有記錄", chartHint: "懸停或點選日期查看數值，可左右滑動。", scale: "刻度上限",
     title: "訪問統計", range: "統計期間", today: "今日", days: n => `近 ${n} 天`, refresh: "重新整理",
-    updated: "報表更新時間", unknown: "未知", views: "已記錄訪問（非已知機器人）", bots: "已辨識機器人請求", bot: "機器人", daily: "每日概況", empty: "尚無資料", capped: "已達上限",
-    note: "以 UTC 換日；保留 30 天。這是頁面訪問次數，不是獨立人數，不會回填既有訪客總數。UA、設備、App 僅為推測；國家是網路出口位置。沒有來源標頭時無法區分直接開啟與 App 隱藏來源。",
+    updated: "報表更新時間", unknown: "未知", views: "訪問次數", bots: "機器人請求", bot: "機器人", daily: "每日概況", empty: "尚無資料", capped: "已達上限",
+    note: "訪問次數不含已辨識機器人，機器人請求只計入已辨識的部分。以 UTC 換日；保留 30 天。這是頁面訪問次數，不是獨立人數，不會回填既有訪客總數。UA、設備、App 僅為推測；國家是網路出口位置。沒有來源標頭時無法區分直接開啟與 App 隱藏來源。",
     capWarning: "此期間有日期達到每日統計上限，資料不完整。",
     failureWarning: "曾發生統計寫入失敗，部分訪問可能未記錄。最近偵測", failureEnd: "此提示不代表目前仍故障。",
     limits: n => `每日最多記錄 ${n} 次首頁請求，超出後停止新增統計；不保存原始 IP、完整 UA、來源路徑或查詢參數。不會自動刷新，按「重新整理」即可更新。儲存完全不可用且執行個體重啟時，異常標記可能無法保留。`,
@@ -16,10 +17,11 @@ const TEXT = {
     dimensions: DIMENSIONS, values: {}
   },
   en: {
-    visits: "Visits", noRecord: "No record", chartHint: "Hover, tap or focus a date for values. Scroll horizontally for more dates.", scale: "Scale maximum",
+    intro: "View visit trends and traffic sources.", details: "How visits are counted", summaryNote: "Days use UTC. Page views are not unique visitors.",
+    visits: "Visits", noRecord: "No record", chartHint: "Select a date for values. Scroll for more dates.", scale: "Scale maximum",
     title: "Visit statistics", range: "Reporting period", today: "Today", days: n => `Last ${n} days`, refresh: "Refresh",
-    updated: "Report updated", unknown: "Unknown", views: "Recorded visits (excluding known bots)", bots: "Recognized bot requests", bot: "Bots", daily: "Daily summary", empty: "No data yet", capped: "Limit reached",
-    note: "Days use UTC; data is kept for 30 days. These are page views, not unique visitors; earlier visitor totals are not backfilled. UA, device and app categories are estimates; country reflects the network exit location. A missing referrer cannot distinguish direct visits from apps that hide their source.",
+    updated: "Report updated", unknown: "Unknown", views: "Page views", bots: "Bot requests", bot: "Bots", daily: "Daily summary", empty: "No data yet", capped: "Limit reached",
+    note: "Page views exclude recognized bots; the bot total includes only recognized requests. Days use UTC; data is kept for 30 days. These are page views, not unique visitors; earlier visitor totals are not backfilled. UA, device and app categories are estimates; country reflects the network exit location. A missing referrer cannot distinguish direct visits from apps that hide their source.",
     capWarning: "Some days in this period reached the daily recording limit. The data is incomplete.",
     failureWarning: "Some visits may be missing because statistics could not be written. Last detected", failureEnd: "This does not necessarily mean the problem is ongoing.",
     limits: n => `Records at most ${n} homepage requests per day, then stops adding statistics. Raw IP addresses, full UAs, referrer paths and query strings are not stored. There is no automatic polling; use Refresh to update. If storage remains unavailable until the instance restarts, the failure marker may be lost.`,
@@ -28,10 +30,11 @@ const TEXT = {
     values: { "未知": "Unknown", "平板": "Tablet", "手機": "Phone", "電腦": "Desktop", "其他／未知": "Other / unknown", "未辨識／一般瀏覽器": "Unrecognized / standard browser", "直接／未知": "Direct / unknown", "站內": "Same site", "其他來源": "Other sources" }
   },
   ja: {
-    visits: "アクセス", noRecord: "記録なし", chartHint: "日付にカーソルを合わせるか、タップ・キーボードで選ぶと数値を確認できます。横にスクロールすると他の日付も表示されます。", scale: "目盛りの上限",
+    intro: "アクセスの推移と参照元を確認できます。", details: "集計方法と制限", summaryNote: "日付は UTC 基準です。アクセス回数は訪問者数とは異なります。",
+    visits: "アクセス", noRecord: "記録なし", chartHint: "日付を選ぶと数値を確認できます。横にスクロールできます。", scale: "目盛りの上限",
     title: "アクセス統計", range: "集計期間", today: "今日", days: n => `過去${n}日間`, refresh: "更新",
-    updated: "集計結果の更新日時", unknown: "不明", views: "記録済みアクセス（既知のボットを除く）", bots: "識別されたボットのリクエスト", bot: "ボット", daily: "日別の概要", empty: "まだデータがありません", capped: "上限到達",
-    note: "日付は UTC 基準で、30日間保存します。訪問者数ではなくページの表示回数です。既存の累計訪問者数からの補完は行いません。UA・端末・アプリは推定で、国は接続元ネットワークの出口を表します。参照元ヘッダーがなければ、直接アクセスと参照元を隠すアプリを区別できません。",
+    updated: "更新日時", unknown: "不明", views: "アクセス回数", bots: "ボットのリクエスト", bot: "ボット", daily: "日別の概要", empty: "まだデータがありません", capped: "上限到達",
+    note: "アクセス回数から識別済みボットを除き、ボットの数には識別できたリクエストだけを含めます。日付は UTC 基準で、30日間保存します。訪問者数ではなくページの表示回数です。既存の累計訪問者数からの補完は行いません。UA・端末・アプリは推定で、国は接続元ネットワークの出口を表します。参照元ヘッダーがなければ、直接アクセスと参照元を隠すアプリを区別できません。",
     capWarning: "この期間には1日の記録上限に達した日があるため、データは完全ではありません。",
     failureWarning: "統計の書き込みに失敗したため、一部のアクセスが記録されていない可能性があります。最終検出", failureEnd: "現在も障害が続いているとは限りません。",
     limits: n => `トップページへのリクエストは1日最大${n}件まで記録し、上限後は統計の追加を停止します。元の IP アドレス、完全な UA、参照元のパスやクエリは保存しません。自動更新は行わないため「更新」を押してください。ストレージが使えないまま実行インスタンスが再起動すると、障害の記録が失われる場合があります。`,
@@ -152,15 +155,15 @@ export function dashboard(report, language = "en") {
     const label = country && /^[A-Z]{2}$/.test(r.value) ? countries.of(r.value) : Object.hasOwn(ui.values, r.value) ? ui.values[r.value] : r.value;
     return `<li><span>${escape(label)}</span><b>${number(r.visits)} <small>${views ? (100 * r.visits / views).toFixed(1) : 0}%</small></b><progress max="${Math.max(1, views)}" value="${r.visits}"></progress></li>`;
   }).join("");
-  return `<nav class="stats-ranges" aria-label="${ui.range}">${[1, 7, 30].map(n => `<button type="button" data-stats-days="${n}" aria-pressed="${n === report.days}">${n === 1 ? ui.today : ui.days(n)}</button>`).join("")}<button type="button" data-stats-days="${report.days}">${ui.refresh}</button></nav>
+  return `<div class="stats-toolbar"><nav class="stats-ranges" aria-label="${ui.range}">${[1, 7, 30].map(n => `<button type="button" data-stats-days="${n}" aria-pressed="${n === report.days}">${n === 1 ? ui.today : ui.days(n)}</button>`).join("")}</nav><button type="button" class="stats-refresh" data-stats-days="${report.days}">${ui.refresh}</button></div>
     <p class="stats-note">${ui.updated}: ${escape(report.generatedAt?.replace('T', ' ').replace(/\.\d+Z$/, ' UTC') || ui.unknown)}</p>
     <div class="stats-summary"><section class="form-card"><span>${ui.views}</span><strong>${number(views)}</strong></section><section class="form-card"><span>${ui.bots}</span><strong>${number(bots)}</strong></section></div>
-    <p class="stats-note">${ui.note}</p>
+    <p class="stats-note">${ui.summaryNote}</p>
     ${report.daily.some(r => r.capped) ? `<p role="status" class="stats-warning">${ui.capWarning}</p>` : ""}
     ${report.writeFailure ? `<p role="status" class="stats-warning">${ui.failureWarning}: ${escape(report.writeFailure)}. ${ui.failureEnd}</p>` : ""}
     <section class="form-card"><h2>${ui.daily}</h2>${dailyChart(report, lang, ui)}</section>
     <div class="stats-grid">${Object.entries(ui.dimensions).map(([key, title]) => `<section class="form-card"><h2>${title}</h2><ul class="stats-list">${rows(report.buckets.filter(r => r.dimension === key), key === "country") || `<li>${ui.empty}</li>`}</ul></section>`).join("")}</div>
-    <p class="stats-note">${ui.limits(number(report.limit))}</p>`;
+    <details class="help-details stats-help"><summary>${ui.details}</summary><p>${ui.note}</p><p>${ui.limits(number(report.limit))}</p></details>`;
 }
 
 export function client(language) {
@@ -211,4 +214,4 @@ panel.addEventListener('click', event => {
 });`;
 }
 
-export const STYLES = `.admin-nav a{padding:10px 12px;color:var(--muted);text-decoration:none;font-size:.9rem;white-space:nowrap}.admin-nav a:hover{color:var(--text)}.stats-ranges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}.stats-ranges button{background:transparent;color:inherit;cursor:pointer;padding:7px 14px;border:1px solid var(--border);border-radius:999px;text-decoration:none}.stats-ranges [aria-pressed="true"]{background:var(--text);color:var(--bg)}.stats-summary,.stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:20px}.stats-summary strong{font-size:2rem}.stats-note{color:var(--muted);font-size:.82rem;margin:20px 0}.stats-warning{color:var(--danger)}.stats-grid{margin-top:20px}.stats-grid h2,.form-card h2{margin:0;font-size:1rem}.stats-list{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto}.stats-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px;margin:14px 0;font-size:.85rem}.stats-list span{overflow-wrap:anywhere}.stats-list b{font-weight:500;text-align:right}.stats-list small{color:var(--muted);font-weight:400}.stats-list progress{grid-column:1/-1;width:100%;height:4px;accent-color:var(--muted)}@media(max-width:600px){.stats-grid{grid-template-columns:1fr}.stats-summary .form-card{padding:12px}.stats-summary span{font-size:.75rem}}.stats-chart-legend{display:flex;flex-wrap:wrap;gap:10px 20px;color:var(--muted);font-size:.8rem}.stats-key-views:before,.stats-key-bots:before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:var(--text)}.stats-key-bots:before{background:var(--muted);opacity:.5}.stats-chart-hint{margin:0}.stats-chart-scroll{min-width:0;overflow-x:auto}.stats-chart{display:flex;min-width:100%;gap:4px;padding:4px 2px}.stats-day{flex:1 0 38px;min-width:38px;max-width:90px;padding:0 2px 8px;background:transparent;color:var(--muted);border:0;border-radius:8px;cursor:pointer;font:inherit;font-size:.68rem}.stats-day svg{display:block;width:100%;height:160px;overflow:visible}.stats-day:hover,.stats-day[aria-pressed="true"]{background:var(--control);color:var(--text)}.stats-day:focus-visible{outline:2px solid var(--text);outline-offset:-2px}.stats-bar-views{fill:var(--text)}.stats-bar-bots{fill:var(--muted);opacity:.5}.stats-chart-guide{stroke:var(--border);stroke-width:.5}.stats-day text{fill:var(--muted);font-size:12px}.stats-chart-cap{fill:var(--danger)}.stats-chart-detail{margin:0;min-height:2.8em;color:var(--muted);font-size:.82rem;overflow-wrap:anywhere}`;
+export const STYLES = `.admin-nav a{padding:10px 12px;color:var(--muted);text-decoration:none;font-size:.9rem;white-space:nowrap}.admin-nav a:hover{color:var(--text)}.stats-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}.stats-ranges{display:flex;gap:2px;padding:3px;border:1px solid var(--border);border-radius:12px;background:var(--control)}.stats-ranges button{min-height:32px;padding:4px 12px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:.875rem;cursor:pointer}.stats-ranges [aria-pressed="true"]{background:var(--surface);color:var(--text)}.stats-summary,.stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:20px}.stats-summary strong{font-size:2rem;line-height:1.2;font-variant-numeric:tabular-nums}.stats-note{color:var(--muted);font-size:.8125rem;margin:16px 0}.stats-warning{color:var(--danger)}.stats-grid{margin-top:20px}.stats-grid h2,.form-card h2{margin:0;font-size:1rem}.stats-list{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto}.stats-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px;margin:14px 0;font-size:.85rem}.stats-list span{overflow-wrap:anywhere}.stats-list b{font-weight:500;text-align:right}.stats-list small{color:var(--muted);font-weight:400}.stats-list progress{grid-column:1/-1;width:100%;height:4px;accent-color:var(--muted)}@media(max-width:600px){.stats-grid{grid-template-columns:1fr}.stats-summary .form-card{padding:12px}.stats-summary span{font-size:.75rem}}.stats-chart-legend{display:flex;flex-wrap:wrap;gap:10px 20px;color:var(--muted);font-size:.8rem}.stats-key-views:before,.stats-key-bots:before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:var(--text)}.stats-key-bots:before{background:var(--muted);opacity:.5}.stats-chart-hint{margin:0}.stats-chart-scroll{min-width:0;overflow-x:auto}.stats-chart{display:flex;min-width:100%;gap:4px;padding:4px 2px}.stats-day{flex:1 0 38px;min-width:38px;max-width:90px;padding:0 2px 8px;background:transparent;color:var(--muted);border:0;border-radius:8px;cursor:pointer;font:inherit;font-size:.68rem}.stats-day svg{display:block;width:100%;height:160px;overflow:visible}.stats-day:hover,.stats-day[aria-pressed="true"]{background:var(--control);color:var(--text)}.stats-day:focus-visible{outline:2px solid var(--text);outline-offset:-2px}.stats-bar-views{fill:var(--text)}.stats-bar-bots{fill:var(--muted);opacity:.5}.stats-chart-guide{stroke:var(--border);stroke-width:.5}.stats-day text{fill:var(--muted);font-size:12px}.stats-chart-cap{fill:var(--danger)}.stats-chart-detail{margin:0;min-height:2.8em;color:var(--muted);font-size:.82rem;overflow-wrap:anywhere}`;

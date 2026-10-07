@@ -70,15 +70,16 @@ async function handleAdminApi(request, env, url, lang) {
   if (!sameOrigin(request)) return json({ error: message.invalidOrigin }, 403);
   const contentType = request.headers.get("Content-Type") || "";
   if (!contentType.toLowerCase().startsWith("application/json")) return json({ error: message.jsonRequired }, 415);
-  const declaredLength = Number(request.headers.get("Content-Length") || 0);
-  if (declaredLength > MAX_BODY_BYTES) return json({ error: message.bodyTooLarge }, 413);
-  const bodyText = await request.text();
-  if (new TextEncoder().encode(bodyText).byteLength > MAX_BODY_BYTES) return json({ error: message.bodyTooLarge }, 413);
+  const bodyText = await readBody(request, MAX_BODY_BYTES);
+  if (bodyText === null) return json({ error: message.bodyTooLarge }, 413);
   let candidate;
   try { candidate = JSON.parse(bodyText); } catch { return json({ error: message.invalidJson }, 400); }
-  const config = normalizeConfig(candidate);
-  const errors = validateConfig(config, lang);
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return json({ error: message.validationFailed }, 400);
+  const errors = validateConfig(candidate, lang);
   if (errors.length) return json({ error: message.validationFailed, details: errors }, 400);
+  const config = normalizeConfig(candidate);
+  const normalizedErrors = validateConfig(config, lang);
+  if (normalizedErrors.length) return json({ error: message.validationFailed, details: normalizedErrors }, 400);
   await env.PROFILE_KV.put(CONFIG_KEY, JSON.stringify(config));
   return json(config, 200, { "Cache-Control": "no-store" });
 }
@@ -100,23 +101,10 @@ async function handleBackup(request, env, lang) {
   if (request.method !== "POST") return methodNotAllowed("GET, POST", lang);
   if (!sameOrigin(request)) return json({ error: message.invalidOrigin }, 403, headers);
   if (!(request.headers.get("Content-Type") || "").toLowerCase().startsWith("application/json")) return json({ error: message.jsonRequired }, 415, headers);
-  // Accept pretty-printed backups, but bound reads even without Content-Length.
-  const limit = 1024 * 1024;
-  if (Number(request.headers.get("Content-Length")) > limit) return json({ error: message.bodyTooLarge }, 413, headers);
-  const reader = request.body?.getReader();
-  const chunks = [];
-  let size = 0;
-  if (reader) {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      size += value.byteLength;
-      if (size > limit) { await reader.cancel(); return json({ error: message.bodyTooLarge }, 413, headers); }
-      chunks.push(value);
-    }
-  }
+  const body = await readBody(request, 1024 * 1024);
+  if (body === null) return json({ error: message.bodyTooLarge }, 413, headers);
   let backup;
-  try { backup = JSON.parse(await new Blob(chunks).text()); }
+  try { backup = JSON.parse(body); }
   catch { return json({ error: message.invalidJson }, 400, headers); }
   if (backup?.format !== "contact-hub" || backup.version !== 1 || !backup.config || typeof backup.config !== "object" || Array.isArray(backup.config)) return json({ error: message.invalidBackup }, 400, headers);
   // Incomplete text can be recovered into the editor, never directly saved or rendered publicly.
@@ -138,12 +126,10 @@ async function handleLogin(request, env, url, lang) {
   if (request.method !== "POST") return methodNotAllowed("GET, HEAD, POST", lang);
   const config = await loadConfig(env);
   if (!sameOrigin(request)) return html(renderLogin(config, message.loginOrigin, lang), 403, { "Cache-Control": "no-store" });
-  const length = Number(request.headers.get("Content-Length") || 0);
-  if (length > 4096) return html(renderLogin(config, message.loginTooLarge, lang), 413, { "Cache-Control": "no-store" });
   const type = request.headers.get("Content-Type") || "";
   if (!type.toLowerCase().startsWith("application/x-www-form-urlencoded")) return html(renderLogin(config, message.loginFormat, lang), 415, { "Cache-Control": "no-store" });
-  const body = await request.text();
-  if (new TextEncoder().encode(body).byteLength > 4096) return html(renderLogin(config, message.loginTooLarge, lang), 413, { "Cache-Control": "no-store" });
+  const body = await readBody(request, 4096);
+  if (body === null) return html(renderLogin(config, message.loginTooLarge, lang), 413, { "Cache-Control": "no-store" });
   const data = new URLSearchParams(body);
   const password = String(data.get("password") || "");
   const auth = await loadAuth(env);
@@ -158,10 +144,11 @@ async function handlePasswordApi(request, env, url, lang) {
   if (request.method !== "POST") return methodNotAllowed("POST", lang);
   if (!sameOrigin(request)) return json({ error: message.invalidOrigin }, 403);
   if (!(request.headers.get("Content-Type") || "").toLowerCase().startsWith("application/json")) return json({ error: message.jsonRequired }, 415);
-  const body = await request.text();
-  if (new TextEncoder().encode(body).byteLength > 4096) return json({ error: message.bodyTooLarge }, 413);
+  const body = await readBody(request, 4096);
+  if (body === null) return json({ error: message.bodyTooLarge }, 413);
   let input;
   try { input = JSON.parse(body); } catch { return json({ error: message.invalidJson }, 400); }
+  if (!input || typeof input !== "object" || Array.isArray(input)) return json({ error: message.invalidJson }, 400);
   const currentPassword = typeof input.currentPassword === "string" ? input.currentPassword : "";
   const newPassword = typeof input.newPassword === "string" ? input.newPassword : "";
   if (!newPassword) return json({ error: message.newPasswordEmpty }, 400);
@@ -182,7 +169,25 @@ function html(body, status = 200, extra = {}) {
   return new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", ...securityHeaders, ...extra } });
 }
 function json(body, status = 200, extra = {}) {
-  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", ...securityHeaders, ...extra } });
+  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...securityHeaders, ...extra } });
+}
+
+// Bound allocation before parsing, including requests without Content-Length.
+export async function readBody(request, limit) {
+  if (Number(request.headers.get("Content-Length")) > limit) return null;
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let text = "", size = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) return text + decoder.decode();
+      size += value.byteLength;
+      if (size > limit) { await reader.cancel().catch(() => {}); return null; }
+      text += decoder.decode(value, { stream: true });
+    }
+  } finally { reader.releaseLock(); }
 }
 function methodNotAllowed(allow, lang) { return json({ error: lang === "zh-TW" ? "不支援此請求方法" : lang === "ja" ? "この操作は許可されていません" : "Method not allowed" }, 405, { Allow: allow }); }
 function redirect(location, headers = {}) { return new Response(null, { status: 303, headers: { Location: location, ...securityHeaders, ...headers } }); }

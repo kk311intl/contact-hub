@@ -57,3 +57,12 @@ test("denied storage does not prevent language, theme or event initialization", 
     assert.equal(document.documentElement.dataset.theme, 'light');
   }
 });
+
+test('invalid stored language keys fall back to the browser language', () => {
+  const source = readFileSync(new URL('../public/app-v3.js', import.meta.url), 'utf8');
+  for (const stored of ['__proto__', 'constructor', 'toString']) {
+    const document = { documentElement: { lang: 'en', dataset: {} }, querySelector: () => null, querySelectorAll: () => [] };
+    vm.runInNewContext(source, { document, navigator: { language: 'ja' }, localStorage: { getItem: key => key === 'contact-language' ? stored : null }, matchMedia: () => ({ matches: false, addEventListener() {} }) });
+    assert.equal(document.documentElement.lang, 'ja');
+  }
+});

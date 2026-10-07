@@ -82,6 +82,8 @@ const PATHS = {
 };
 
 export function iconSvg(type) {
-  const viewBox = ICON_GROUPS.brands.some(([value]) => value === type) ? "-2 -2 28 28" : "0 0 24 24";
-  return `<svg viewBox="${viewBox}" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS[type] || PATHS.link}</svg>`;
+  const icon = Object.hasOwn(PATHS, type) ? type : "link";
+  const brand = ICON_GROUPS.brands.some(([value]) => value === icon);
+  const viewBox = brand ? "-2 -2 28 28" : "0 0 24 24";
+  return `<svg class="hub-icon${brand ? " hub-icon--brand" : ""}" data-icon="${icon}" viewBox="${viewBox}" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS[icon]}</svg>`;
 }

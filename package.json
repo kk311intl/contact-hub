@@ -1,6 +1,6 @@
 {
   "name": "contact-hub",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "license": "GPL-3.0-only",
   "type": "module",
@@ -11,7 +11,7 @@
     "check": "node --test && wrangler deploy --dry-run"
   },
   "dependencies": {},
-  "overrides": { "miniflare": { "undici": "7.29.1" } },
+  "overrides": { "miniflare": { "undici": "7.29.1", "sharp": "0.35.5" } },
   "devDependencies": {
     "wrangler": "^4.42.0"
   }

@@ -1,4 +1,4 @@
-import worker from "./site.js";
+import worker, { readBody } from "./site.js";
 import { VisitorCounter as BaseCounter } from "./visitors.js";
 import { Analytics, classify, dashboard, STYLES, client, statsFor } from "./analytics.js";
 import { adminSessionValid, sameOrigin } from "./auth.js";
@@ -79,7 +79,7 @@ function adminTabs(response, language) {
   return new HTMLRewriter()
     .on("head", { element(el) { el.append('<link rel="stylesheet" href="/admin/analytics.css">', { html: true }); } })
     .on(".admin-nav", { element(el) { el.append(`<button type="button" data-section-button="analytics">${ui.title}</button>`, { html: true }); } })
-    .on(".admin-main", { element(el) { el.append(`<section class="editor-section" data-section="analytics"><h2>${ui.title}</h2><div data-analytics-content aria-live="polite"></div></section>`, { html: true }); } })
+    .on(".admin-main", { element(el) { el.append(`<section class="editor-section" data-section="analytics"><div class="section-heading"><h2 tabindex="-1">${ui.title}</h2><p>${ui.intro}</p></div><div data-analytics-content aria-live="polite"></div></section>`, { html: true }); } })
     .on("body", { element(el) { el.append('<script type="module" src="/admin/analytics.js"></script>', { html: true }); } })
     .transform(response);
 }
@@ -142,9 +142,9 @@ async function fetchRequest(request, env, ctx) {
     if (["/admin", "/admin/", "/admin/login", "/admin/analytics"].includes(url.pathname) && ["GET", "HEAD"].includes(request.method)) return adminView(request, env, ctx);
     if (url.pathname === "/" && request.method === "POST") {
       if (!sameOrigin(request)) return new Response(message.invalidOrigin, { status: 403 });
-      if (Number(request.headers.get("Content-Length")) > 4096) return new Response(message.bodyTooLarge, { status: 413 });
-      const body = await request.clone().text();
-      if (new TextEncoder().encode(body).byteLength > 4096) return new Response(message.bodyTooLarge, { status: 413 });
+      if (!(request.headers.get('Content-Type') || '').toLowerCase().startsWith('application/x-www-form-urlencoded')) return new Response(message.loginFormat, { status: 415 });
+      const body = await readBody(request, 4096);
+      if (body === null) return new Response(message.bodyTooLarge, { status: 413 });
       const data = new URLSearchParams(body);
       const action = data.get("_contact_action");
       if (action === 'view' && ['admin', 'public'].includes(data.get('view'))) {
@@ -152,7 +152,8 @@ async function fetchRequest(request, env, ctx) {
         return shell(await worker.fetch(new Request(request.url, { headers: request.headers }), env, ctx), 'public');
       }
       if (!["login", "logout"].includes(action)) return new Response(message.notFound, { status: 400 });
-      const response = await worker.fetch(alias(request, `/admin/${action}`), env, ctx);
+      const forwarded = new Request(request.url, { method: 'POST', headers: request.headers, body });
+      const response = await worker.fetch(alias(forwarded, `/admin/${action}`), env, ctx);
       const headers = new Headers(response.headers);
       if (response.status === 303) {
         const getHeaders = new Headers(request.headers);

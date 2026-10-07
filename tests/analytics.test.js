@@ -134,6 +134,23 @@ test("counter extension preserves existing totals and counting cookies", async (
   assert.equal(counter.analytics.report().writeFailure, degraded.writeFailure);
 });
 
+test('visitor counts and IP limits roll back together when storage fails', async () => {
+  const s = storage();
+  const counter = new VisitorCounter({ storage: s });
+  const exec = s.sql.exec;
+  let fail = true;
+  s.sql.exec = (query, ...args) => {
+    if (fail && query.startsWith('UPDATE totals SET visitors')) throw new Error('Simulated storage failure');
+    return exec(query, ...args);
+  };
+  const request = () => new Request('https://counter.invalid/visit', { method: 'POST', body: JSON.stringify({ existing: false, ip: 'test-hash', day: '2026-10-08' }) });
+  await assert.rejects(counter.fetch(request()), /Simulated storage failure/);
+  assert.equal(s.sql.exec('SELECT visitors FROM totals WHERE id = 1').one().visitors, 0);
+  assert.deepEqual(s.sql.exec('SELECT ip FROM daily_ips').toArray(), []);
+  fail = false;
+  assert.equal((await (await counter.fetch(request())).json()).count, 1);
+});
+
 test("analytics routes require current admin authentication and preserve security headers", async () => {
   const env = { SESSION_SECRET: "local-test-only", PROFILE_KV: { async get(key) { assert.equal(key, 'admin_auth'); return null; } } };
   for (const path of ["/api/admin/analytics", "/admin/analytics.css", "/admin/analytics.js"]) {

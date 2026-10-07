@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('../public/admin-v4.js', import.meta.url), 'utf8');
-const save = source.slice(source.indexOf('async function save()'), source.indexOf('function showToast('));
+const save = source.slice(source.indexOf('async function requestJson('), source.indexOf('function showToast('));
 
 test('save keeps edits made in flight dirty and supports the next save', async () => {
   const original = { name: 'Example', links: [{ label: 'Original' }], settings: { footerLinks: [{ label: 'Status' }] } };
@@ -37,6 +37,7 @@ test('save keeps edits made in flight dirty and supports the next save', async (
 test('failed saves preserve current edits and re-enable saving', async () => {
   const context = vm.createContext({
     config: { name: 'Example' }, saved: '{}', saveButton: { disabled: false },
+    ui: { saveFailed: 'Save failed' },
     collect() {}, showToast() {}, fetch: async () => { throw new Error('Offline'); }
   });
   vm.runInContext(save, context);
@@ -44,4 +45,17 @@ test('failed saves preserve current edits and re-enable saving', async () => {
   assert.equal(context.config.name, 'Example');
   assert.equal(context.saved, '{}');
   assert.equal(context.saveButton.disabled, false);
+});
+
+test('non-JSON responses preserve edits and show the localized failure message', async () => {
+  for (const message of ['儲存失敗', 'Save failed', '保存できませんでした']) {
+    let shown;
+    const context = vm.createContext({ config: { name: 'Unsaved' }, saved: '{}', saveButton: { disabled: false }, ui: { saveFailed: message }, collect() {}, showToast(value) { shown = value; }, fetch: async () => ({ ok: true, json: async () => { throw new SyntaxError('HTML challenge'); } }) });
+    vm.runInContext(save, context);
+    await vm.runInContext('save()', context);
+    assert.equal(shown, message);
+    assert.equal(context.config.name, 'Unsaved');
+    assert.equal(context.saved, '{}');
+    assert.equal(context.saveButton.disabled, false);
+  }
 });

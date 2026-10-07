@@ -53,7 +53,7 @@ test("settings default safely, validate in three languages, and appear in the ad
   assert.equal(config.settings.autoRedirectSeconds, 5);
   for (const lang of ["zh-TW", "en", "ja"]) {
     assert.match(renderAdmin(config, lang), /name="autoRedirectEnabled"/);
-    assert.match(renderAdmin(config, lang), /<small data-redirect-apps>[^<]*Telegram[^<]*Weibo[^<]*<\/small>/);
+    assert.match(renderAdmin(config, lang), /data-redirect-apps>[^<]*Telegram[^<]*Weibo[^<]*</);
     assert.match(renderAdmin(config, lang), /name="autoRedirectSeconds" min="1" max="10" step="1" value="5"/);
     for (const value of [0, 11, 1.5, "5", NaN]) {
       config.settings.autoRedirectSeconds = value;

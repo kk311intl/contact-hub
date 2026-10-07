@@ -2,6 +2,7 @@ export const UI = {
   "zh-TW": {
     statistics: "訪問統計", statisticsUnavailable: "暫時無法取得訪客數", contact: "聯絡方式", websites: "網站", pending: "準備中", skip: "跳至主要內容", notFound: "找不到頁面", back: "返回首頁", language: "語言", appearance: "外觀", preferences: "網站外觀", credit: "由", creditEnd: "製作",
     admin: {
+      visibilityHelpTitle: "顯示狀態說明", autoRedirectSummary: "在支援的 App 中，倒數後開啟對應聯絡連結。", autoRedirectHelpTitle: "支援 App 與跳轉說明",
       backup: "設定備份",
       backupHelp: "匯出已儲存的頭像、文字與連結（含隱藏項目），不含密碼、憑證或統計。請妥善保管備份。匯入後需按儲存才會套用。",
       exportSettings: "匯出已儲存設定",
@@ -40,6 +41,7 @@ export const UI = {
   en: {
     statistics: "Visit statistics", statisticsUnavailable: "Visitor count is temporarily unavailable", contact: "Contact", websites: "Websites", pending: "Coming soon", skip: "Skip to content", notFound: "Page not found", back: "Back home", language: "Language", appearance: "Appearance", preferences: "Site appearance", credit: "Powered by", creditEnd: "",
     admin: {
+      visibilityHelpTitle: "About visibility", autoRedirectSummary: "Open the matching contact link after a countdown in supported apps.", autoRedirectHelpTitle: "Supported apps and redirect details",
       backup: "Settings backup",
       backupHelp: "Export saved avatar, text and links (including hidden items), without passwords, credentials or statistics. Keep the file private. Imported settings take effect only after saving.",
       exportSettings: "Export saved settings",
@@ -78,6 +80,7 @@ export const UI = {
   ja: {
     statistics: "アクセス統計", statisticsUnavailable: "訪問者数を取得できません", contact: "連絡先", websites: "ウェブサイト", pending: "準備中", skip: "本文へ移動", notFound: "ページが見つかりません", back: "ホームに戻る", language: "言語", appearance: "表示設定", preferences: "サイトの表示設定", credit: "制作：", creditEnd: "",
     admin: {
+      visibilityHelpTitle: "表示状態について", autoRedirectSummary: "対応アプリ内で、カウントダウン後に連絡先リンクを開きます。", autoRedirectHelpTitle: "対応アプリと自動移動について",
       backup: "設定のバックアップ",
       backupHelp: "保存済みの画像・文章・リンク（非表示項目を含む）を書き出します。パスワード・認証情報・統計は含みません。ファイルは大切に保管してください。読み込み後は保存するまでサイトに反映されません。",
       exportSettings: "保存済み設定を書き出す",
@@ -115,4 +118,4 @@ export const UI = {
   }
 };
 
-export function uiFor(lang) { return UI[lang] || UI.en; }
+export function uiFor(lang) { return Object.hasOwn(UI, lang) ? UI[lang] : UI.en; }
